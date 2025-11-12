@@ -158,7 +158,7 @@ export function LoginForm({
       
       <div className="text-balance text-center text-xs text-muted-foreground">
         <p>© 2025 Sistema Multi-OBS de Gestão de Saúde Pública</p>
-        <p className="mt-1">Desenvolvido para Unidades Básicas de Saúde do Brasil</p>
+        <p className="mt-1">Desenvolvido por Nexxia para Unidades Básicas de Saúde do Brasil</p>
       </div>
     </div>
   )
