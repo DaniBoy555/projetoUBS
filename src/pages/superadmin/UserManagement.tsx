@@ -12,7 +12,7 @@ import type { Usuario, TipoUsuario } from '@/types';
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<TipoUsuario | 'todos'>('todos');
-  const [users, setUsers] = useState<Usuario[]>(mockUsuarios);
+  const [users] = useState<Usuario[]>(mockUsuarios);
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =

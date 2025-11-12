@@ -1,45 +1,55 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/app-sidebar';
-import { SiteHeader } from '@/components/site-header';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
-import Login from '@/pages/auth/Login';
+import { LoginForm } from '@/components/login-form';
 import Dashboard from '@/pages/superadmin/Dashboard';
-import OBSManagement from '@/pages/superadmin/OBSManagement';
-import UserManagement from '@/pages/superadmin/UserManagement';
+
+// Componente de Login Customizado
+function LoginPage() {
+  return (
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <LoginForm />
+      </div>
+    </div>
+  );
+}
+
+// Dashboard simples para teste
+function SimpleDashboard() {
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold">Dashboard - Sistema Multi-OBS</h1>
+      <p className="text-muted-foreground">Login realizado com sucesso!</p>
+      <div className="mt-6">
+        <Dashboard />
+      </div>
+    </div>
+  );
+}
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rota de login sem layout */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Rotas protegidas com layout */}
-        <Route
-          path="/*"
-          element={
-            <SidebarProvider>
-              <div className="flex min-h-screen w-full">
-                <AppSidebar />
-                <div className="flex flex-1 flex-col">
-                  <SiteHeader />
-                  <main className="flex-1 p-6">
-                    <Routes>
-                      <Route path="/" element={<Navigate to="/superadmin" replace />} />
-                      <Route path="/superadmin" element={<Dashboard />} />
-                      <Route path="/superadmin/obs" element={<OBSManagement />} />
-                      <Route path="/superadmin/usuarios" element={<UserManagement />} />
-                    </Routes>
-                  </main>
-                </div>
-              </div>
-              <Toaster />
-            </SidebarProvider>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<SimpleDashboard />} />
+          <Route path="/superadmin" element={<SimpleDashboard />} />
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

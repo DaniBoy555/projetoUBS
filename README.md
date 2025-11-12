@@ -1,12 +1,17 @@
-# Multi-OBS Saúde - Dashboard SuperAdmin
+# Multi-OBS Saúde - Sistema Multi-Tenant
 
 Sistema multi-tenant para gestão de informações de saúde públicas usado por múltiplas OBS de todo o Brasil.
 
 ## Status do Projeto
 
-✅ **Dashboard SuperAdmin implementado com sucesso!**
+✅ **Projeto base implementado com sucesso!**
 
-Atualmente funcionando com dados fictícios (mock) - sem banco de dados.
+- ✅ Configuração completa do projeto Vite + React + TypeScript
+- ✅ Tailwind CSS e shadcn/ui configurados
+- ✅ Sistema de autenticação estruturado
+- ✅ Supabase configurado para banco de dados
+- ✅ Rotas protegidas implementadas
+- ⚠️ Aguardando configuração do banco de dados Supabase
 
 ## Tecnologias Utilizadas
 
@@ -14,10 +19,14 @@ Atualmente funcionando com dados fictícios (mock) - sem banco de dados.
 - **TypeScript 5.9.3** - Tipagem estática
 - **Vite 7.2.2** - Build tool e dev server
 - **Tailwind CSS 4.1.17** - Framework CSS
-- **shadcn/ui** - Componentes UI (dashboard-01)
-- **React Router DOM** - Roteamento
+- **shadcn/ui** - Componentes UI 
+- **React Router DOM 7.9.5** - Roteamento
+- **Supabase** - Banco de dados e autenticação
+- **React Hook Form + Zod** - Formulários e validação
+- **TanStack Query** - Gerenciamento de estado servidor
+- **Zustand** - Gerenciamento de estado global
 - **Lucide React** - Ícones
-- **Recharts** - Gráficos
+- **Sonner** - Notificações toast
 - **date-fns** - Manipulação de datas
 
 ## Estrutura do Projeto
