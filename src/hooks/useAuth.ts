@@ -50,38 +50,68 @@ export function useAuth() {
     }
   };
 
-  const loadUserData = async (authId: string) => {
+  const loadUserData = async (authId: string, shouldRedirect = false) => {
     try {
+      console.log('📋 Carregando dados para authId:', authId);
+      
       const { data, error } = await supabase
         .from('usuarios')
         .select('*')
         .eq('auth_id', authId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao carregar usuário:', error);
+        throw error;
+      }
+      
+      console.log('✅ Dados do usuário carregados:', data);
       setUser(data);
+      
+      // Redirecionar automaticamente se solicitado
+      if (shouldRedirect) {
+        console.log('🔀 Redirecionando usuário tipo:', data.tipo_usuario);
+        setTimeout(() => redirectByUserType(data), 500);
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
       setUser(null);
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, demoUserType?: string, forceDemo = false) => {
     try {
-      if (!isSupabaseConfigured) {
+      console.log('🔍 Login Debug:', { 
+        email, 
+        isSupabaseConfigured, 
+        demoUserType,
+        forceDemo,
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL 
+      });
+      
+      if (!isSupabaseConfigured || forceDemo) {
         // Simulação de login para demonstração
         toast.info('Modo demonstração - Supabase não configurado');
         
-        // Simular usuário para teste
+        // Simular usuário para teste baseado no tipo selecionado
+        const userType = demoUserType as 'superadmin' | 'admin_obs' | 'agente_saude' | 'populacao' || 'superadmin';
+        
+        const userNames = {
+          superadmin: 'SuperAdmin Demo',
+          admin_obs: 'Admin OBS Demo',
+          agente_saude: 'Agente Maria Silva',
+          populacao: 'Usuário Público'
+        };
+        
         const mockUser: Usuario = {
           id: '1',
           auth_id: '1',
-          obs_id: '1',
-          nome: 'SuperAdmin Demo',
+          obs_id: userType === 'superadmin' ? null : '1',
+          nome: userNames[userType],
           email: email,
           telefone: null,
-          tipo_usuario: 'superadmin',
-          posto_saude: null,
+          tipo_usuario: userType,
+          posto_saude: userType === 'agente_saude' ? 'UBS Centro' : null,
           foto_url: null,
           status: 'ativo',
           created_at: new Date().toISOString(),
@@ -90,23 +120,45 @@ export function useAuth() {
         
         setUser(mockUser);
         toast.success('Login realizado com sucesso (modo demo)!');
-        setTimeout(() => redirectByUserType(), 1000);
+        setTimeout(() => {
+          // Redirect baseado no tipo de usuário mock
+          switch (mockUser.tipo_usuario) {
+            case 'superadmin':
+              navigate('/superadmin');
+              break;
+            case 'admin_obs':
+              navigate('/admin');
+              break;
+            case 'agente_saude':
+              navigate('/agente');
+              break;
+            case 'populacao':
+              navigate('/');
+              break;
+            default:
+              navigate('/dashboard');
+          }
+        }, 1000);
         return;
       }
 
+      console.log('📡 Tentando login no Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro Supabase:', error);
+        throw error;
+      }
+
+      console.log('✅ Login Supabase OK:', data.user?.id);
 
       if (data.user) {
-        await loadUserData(data.user.id);
+        console.log('👤 Carregando dados do usuário...');
+        await loadUserData(data.user.id, true); // true para redirecionar automaticamente
         toast.success('Login realizado com sucesso!');
-        
-        // Redirect baseado no tipo de usuário
-        redirectByUserType();
       }
     } catch (error: any) {
       toast.error(`Erro ao fazer login: ${error.message}`);
@@ -176,10 +228,16 @@ export function useAuth() {
     }
   };
 
-  const redirectByUserType = () => {
-    if (!user) return;
+  const redirectByUserType = (userObj?: Usuario) => {
+    const currentUser = userObj || user;
+    if (!currentUser) {
+      console.warn('No user data available for redirect');
+      return;
+    }
 
-    switch (user.tipo_usuario) {
+    console.log('Redirecting user type:', currentUser.tipo_usuario);
+
+    switch (currentUser.tipo_usuario) {
       case 'superadmin':
         navigate('/superadmin');
         break;
@@ -193,7 +251,7 @@ export function useAuth() {
         navigate('/');
         break;
       default:
-        navigate('/');
+        navigate('/dashboard');
     }
   };
 

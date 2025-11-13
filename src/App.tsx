@@ -3,6 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { LoginForm } from '@/components/login-form';
 import Dashboard from '@/pages/superadmin/Dashboard';
+import AdminOBSDashboard from '@/pages/admin-obs/Dashboard';
+import AgenteDashboard from '@/pages/agente/Dashboard';
+import PopulacaoHome from '@/pages/populacao/Home';
 
 // Componente de Login Customizado
 function LoginPage() {
@@ -42,10 +45,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<SimpleDashboard />} />
+          
+          {/* Rotas por tipo de usuário */}
           <Route path="/superadmin" element={<SimpleDashboard />} />
+          <Route path="/admin" element={<AdminOBSDashboard />} />
+          <Route path="/agente" element={<AgenteDashboard />} />
+          <Route path="/" element={<PopulacaoHome />} />
+          
+          {/* Rota de fallback */}
+          <Route path="/dashboard" element={<SimpleDashboard />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
         <Toaster />
       </BrowserRouter>

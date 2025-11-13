@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+  userType: z.string().optional(),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -23,6 +25,8 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedUserType, setSelectedUserType] = useState<string>('superadmin');
+  const [forceDemo, setForceDemo] = useState(false);
   const { signIn } = useAuth();
 
   const {
@@ -36,7 +40,7 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      await signIn(data.email, data.password);
+      await signIn(data.email, data.password, selectedUserType, forceDemo);
     } catch (error) {
       // Error is already handled in useAuth hook
     } finally {
@@ -44,15 +48,36 @@ export function LoginForm({
     }
   };
 
+  const handleDemoLogin = () => {
+    setForceDemo(true);
+    onSubmit({ email: 'demo@test.com', password: '123456', userType: selectedUserType });
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       {!isSupabaseConfigured && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-amber-800">
+          <div className="flex items-center gap-2 text-amber-800 mb-3">
             <AlertCircle className="h-4 w-4" />
             <p className="text-sm font-medium">
               Modo Demonstração - Use qualquer email e senha para entrar
             </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="userType" className="text-sm text-amber-700">
+              Testar como:
+            </Label>
+            <Select value={selectedUserType} onValueChange={setSelectedUserType}>
+              <SelectTrigger className="bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="superadmin">SuperAdmin (vê tudo)</SelectItem>
+                <SelectItem value="admin_obs">Admin OBS (gestão da OBS)</SelectItem>
+                <SelectItem value="agente_saude">Agente de Saúde (operacional)</SelectItem>
+                <SelectItem value="populacao">População (público)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}
@@ -112,6 +137,18 @@ export function LoginForm({
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Entrando...' : 'Entrar'}
               </Button>
+
+              {isSupabaseConfigured && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleDemoLogin}
+                  disabled={isLoading}
+                >
+                  🧪 Modo Demo (Debug)
+                </Button>
+              )}
 
               <div className="text-center text-sm">
                 Primeiro acesso?{" "}
