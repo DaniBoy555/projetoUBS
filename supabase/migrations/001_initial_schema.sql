@@ -1,5 +1,5 @@
 -- Extensões necessárias
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Enums
 CREATE TYPE tipo_usuario AS ENUM ('superadmin', 'admin_obs', 'agente_saude', 'populacao');
@@ -13,7 +13,7 @@ CREATE TYPE status_duvida AS ENUM ('pendente', 'respondida', 'arquivada');
 
 -- Tabela de OBS (Organizações Básicas de Saúde)
 CREATE TABLE obs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome VARCHAR(255) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     estado CHAR(2) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE obs (
 
 -- Tabela de usuários
 CREATE TABLE usuarios (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_id UUID UNIQUE NOT NULL, -- Referência ao auth.users do Supabase
     obs_id UUID REFERENCES obs(id) ON DELETE SET NULL,
     nome VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE usuarios (
 
 -- Tabela de eventos de saúde
 CREATE TABLE eventos_saude (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     obs_id UUID NOT NULL REFERENCES obs(id) ON DELETE CASCADE,
     tipo tipo_evento NOT NULL,
     titulo VARCHAR(255) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE eventos_saude (
 
 -- Tabela de médicos disponíveis
 CREATE TABLE medicos_disponiveis (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     obs_id UUID NOT NULL REFERENCES obs(id) ON DELETE CASCADE,
     nome VARCHAR(255) NOT NULL,
     crm VARCHAR(20),
@@ -89,7 +89,7 @@ CREATE TABLE medicos_disponiveis (
 
 -- Tabela de dúvidas da população
 CREATE TABLE duvidas_populacao (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     obs_id UUID NOT NULL REFERENCES obs(id) ON DELETE CASCADE,
     nome_pessoa VARCHAR(255) NOT NULL,
     email VARCHAR(255),
@@ -106,7 +106,7 @@ CREATE TABLE duvidas_populacao (
 
 -- Tabela de auditoria
 CREATE TABLE log_auditoria (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     obs_id UUID REFERENCES obs(id) ON DELETE SET NULL,
     usuario_id UUID REFERENCES usuarios(id) ON DELETE SET NULL,
     acao VARCHAR(50) NOT NULL,
