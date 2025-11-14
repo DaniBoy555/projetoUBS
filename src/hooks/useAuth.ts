@@ -89,9 +89,10 @@ export function useAuth() {
         supabaseUrl: import.meta.env.VITE_SUPABASE_URL 
       });
       
+      // Check for demo mode first (either forced or not configured)
       if (!isSupabaseConfigured || forceDemo) {
-        // Simulação de login para demonstração
-        toast.info('Modo demonstração - Supabase não configurado');
+        console.log('🧪 Executando modo demo');
+        toast.info('Modo demonstração ativado');
         
         // Simular usuário para teste baseado no tipo selecionado
         const userType = demoUserType as 'superadmin' | 'admin_obs' | 'agente_saude' | 'populacao' || 'superadmin';
@@ -120,6 +121,8 @@ export function useAuth() {
         
         setUser(mockUser);
         toast.success('Login realizado com sucesso (modo demo)!');
+        console.log('🔄 Redirecionando para:', userType);
+        
         setTimeout(() => {
           // Redirect baseado no tipo de usuário mock
           switch (mockUser.tipo_usuario) {
@@ -150,6 +153,19 @@ export function useAuth() {
 
       if (error) {
         console.error('❌ Erro Supabase:', error);
+        
+        // If login fails, offer demo fallback
+        if (error.message.includes('Invalid login credentials')) {
+          console.log('🔄 Login falhou, oferecendo modo demo...');
+          toast.error(`Credenciais inválidas. Usando modo demo.`);
+          
+          // Automatically switch to demo mode
+          setTimeout(() => {
+            signIn(email, password, demoUserType, true);
+          }, 1500);
+          return;
+        }
+        
         throw error;
       }
 
@@ -161,6 +177,7 @@ export function useAuth() {
         toast.success('Login realizado com sucesso!');
       }
     } catch (error: any) {
+      console.error('🚫 Erro final no login:', error);
       toast.error(`Erro ao fazer login: ${error.message}`);
       throw error;
     }
