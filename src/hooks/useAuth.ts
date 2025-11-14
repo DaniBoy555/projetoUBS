@@ -53,21 +53,31 @@ export function useAuth() {
   const loadUserData = async (authId: string, shouldRedirect = false) => {
     try {
       console.log('📋 Carregando dados para authId:', authId);
-      
+
       const { data, error } = await supabase
         .from('usuarios')
         .select('*')
         .eq('auth_id', authId)
-        .single();
+        .maybeSingle(); // Mudado de .single() para .maybeSingle() - retorna null se não encontrar
 
       if (error) {
         console.error('❌ Erro ao carregar usuário:', error);
         throw error;
       }
-      
+
+      // Se não encontrou usuário na tabela, pode ser que o registro ainda não foi criado
+      if (!data) {
+        console.warn('⚠️ Usuário autenticado mas sem registro na tabela usuarios');
+        toast.error('Usuário não encontrado no sistema. Contate o administrador.');
+        await supabase.auth.signOut();
+        setUser(null);
+        navigate('/login');
+        return;
+      }
+
       console.log('✅ Dados do usuário carregados:', data);
       setUser(data);
-      
+
       // Redirecionar automaticamente se solicitado
       if (shouldRedirect) {
         console.log('🔀 Redirecionando usuário tipo:', data.tipo_usuario);
