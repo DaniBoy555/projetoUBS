@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { useAuth } from '@/hooks/useAuth';
 
 const loginSchema = z.object({
@@ -48,6 +49,10 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      {/* Botão de alternar tema no topo direito */}
+      <div className="flex justify-end">
+        <ThemeToggle />
+      </div>
       
       <Card className="overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
