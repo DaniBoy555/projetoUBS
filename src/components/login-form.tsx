@@ -2,16 +2,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { HeartHandshake, Users, Calendar, Building2, AlertCircle, Bug } from 'lucide-react';
+import { HeartHandshake, Users, Calendar, Building2 } from 'lucide-react';
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from '@/hooks/useAuth';
-import { isSupabaseConfigured } from '@/lib/supabase';
-import { debugSupabase } from '@/utils/debugSupabase';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -26,8 +23,6 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedUserType, setSelectedUserType] = useState<string>('superadmin');
-  const [forceDemo, setForceDemo] = useState(false);
   const { signIn } = useAuth();
 
   const {
@@ -41,7 +36,7 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      await signIn(data.email, data.password, selectedUserType, forceDemo);
+      await signIn(data.email, data.password);
     } catch (error) {
       // Error is already handled in useAuth hook
     } finally {
@@ -49,44 +44,10 @@ export function LoginForm({
     }
   };
 
-  const handleDemoLogin = () => {
-    setForceDemo(true);
-    onSubmit({ email: 'demo@test.com', password: '123456', userType: selectedUserType });
-  };
 
-  const handleDebug = async () => {
-    console.log('🩺 Executando diagnóstico completo...');
-    await debugSupabase.runFullDiagnosis();
-  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      {!isSupabaseConfigured && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-amber-800 mb-3">
-            <AlertCircle className="h-4 w-4" />
-            <p className="text-sm font-medium">
-              Modo Demonstração - Use qualquer email e senha para entrar
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="userType" className="text-sm text-amber-700">
-              Testar como:
-            </Label>
-            <Select value={selectedUserType} onValueChange={setSelectedUserType}>
-              <SelectTrigger className="bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="superadmin">SuperAdmin (vê tudo)</SelectItem>
-                <SelectItem value="admin_obs">Admin OBS (gestão da OBS)</SelectItem>
-                <SelectItem value="agente_saude">Agente de Saúde (operacional)</SelectItem>
-                <SelectItem value="populacao">População (público)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      )}
       
       <Card className="overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
@@ -144,29 +105,7 @@ export function LoginForm({
                 {isLoading ? 'Entrando...' : 'Entrar'}
               </Button>
 
-              {isSupabaseConfigured && (
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={handleDemoLogin}
-                  disabled={isLoading}
-                >
-                  🧪 Modo Demo (Debug)
-                </Button>
-              )}
 
-              <Button 
-                type="button" 
-                variant="secondary" 
-                size="sm"
-                className="w-full text-xs" 
-                onClick={handleDebug}
-                disabled={isLoading}
-              >
-                <Bug className="h-3 w-3 mr-1" />
-                Diagnóstico Supabase (veja o console)
-              </Button>
 
               <div className="text-center text-sm">
                 Primeiro acesso?{" "}

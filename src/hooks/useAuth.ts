@@ -54,13 +54,11 @@ export function useAuth() {
   const loadUserData = async (authId: string, shouldRedirect = false) => {
     // Evitar múltiplas chamadas simultâneas
     if (isLoadingUserData) {
-      console.log('⏳ Já está carregando dados do usuário, ignorando...');
       return;
     }
 
     setIsLoadingUserData(true);
     try {
-      console.log('📋 Carregando dados para authId:', authId);
 
       const { data, error } = await supabase
         .from('usuarios')
@@ -69,36 +67,13 @@ export function useAuth() {
         .maybeSingle();
 
       if (error) {
-        console.error('❌ Erro detalhado ao carregar usuário:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          authId: authId
-        });
         throw error;
       }
 
-      console.log('📈 Resultado da query:', {
-        encontrado: !!data,
-        dados: data,
-        authIdBuscado: authId
-      });
 
       // Debug: Se não encontrou, verificar se existem usuários na tabela
       if (!data) {
-        console.warn('⚠️ Usuário não encontrado. Verificando tabela usuarios...');
-        const { data: allUsers, error: countError } = await supabase
-          .from('usuarios')
-          .select('auth_id, nome, email, tipo_usuario')
-          .limit(5);
         
-        console.log('👥 Usuários existentes na tabela:', allUsers);
-        console.log('🔍 Auth ID buscado:', authId);
-        
-        if (countError) {
-          console.error('❌ Erro ao verificar usuários existentes:', countError);
-        }
 
         toast.error('Usuário não encontrado no sistema. Contate o administrador.');
         await supabase.auth.signOut();
@@ -107,21 +82,13 @@ export function useAuth() {
         return;
       }
 
-      console.log('✅ Dados do usuário carregados com sucesso:', data);
       setUser(data);
 
       // Redirecionar automaticamente se solicitado
       if (shouldRedirect) {
-        console.log('🔀 Redirecionando usuário tipo:', data.tipo_usuario);
         setTimeout(() => redirectByUserType(data), 500);
       }
     } catch (error) {
-      console.error('💥 Erro completo no loadUserData:', {
-        error: error,
-        message: error?.message,
-        stack: error?.stack,
-        authId: authId
-      });
       setUser(null);
     } finally {
       setIsLoadingUserData(false);
@@ -130,17 +97,9 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string, demoUserType?: string, forceDemo = false) => {
     try {
-      console.log('🔍 Login Debug:', { 
-        email, 
-        isSupabaseConfigured, 
-        demoUserType,
-        forceDemo,
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL 
-      });
       
-      // Check for demo mode first (either forced or not configured)
-      if (!isSupabaseConfigured || forceDemo) {
-        console.log('🧪 Executando modo demo');
+      // Check for demo mode ONLY if explicitly forced
+      if (forceDemo) {
         toast.info('Modo demonstração ativado');
         
         // Simular usuário para teste baseado no tipo selecionado
@@ -170,7 +129,6 @@ export function useAuth() {
         
         setUser(mockUser);
         toast.success('Login realizado com sucesso (modo demo)!');
-        console.log('🔄 Redirecionando para:', userType);
         
         setTimeout(() => {
           // Redirect baseado no tipo de usuário mock
@@ -194,7 +152,12 @@ export function useAuth() {
         return;
       }
 
-      console.log('📡 Tentando login no Supabase...');
+      // If Supabase is not configured, require valid credentials even for demo
+      if (!isSupabaseConfigured) {
+        toast.error('Sistema não configurado. Entre em contato com o administrador.');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -203,30 +166,21 @@ export function useAuth() {
       if (error) {
         console.error('❌ Erro Supabase:', error);
         
-        // If login fails, offer demo fallback
+        // If login fails, show error and don't automatically switch to demo
         if (error.message.includes('Invalid login credentials')) {
-          console.log('🔄 Login falhou, oferecendo modo demo...');
-          toast.error(`Credenciais inválidas. Usando modo demo.`);
-          
-          // Automatically switch to demo mode
-          setTimeout(() => {
-            signIn(email, password, demoUserType, true);
-          }, 1500);
+            toast.error('Credenciais inválidas. Verifique email e senha.');
           return;
         }
         
         throw error;
       }
 
-      console.log('✅ Login Supabase OK:', data.user?.id);
 
       if (data.user) {
-        console.log('👤 Carregando dados do usuário...');
         await loadUserData(data.user.id, true); // true para redirecionar automaticamente
         toast.success('Login realizado com sucesso!');
       }
     } catch (error: any) {
-      console.error('🚫 Erro final no login:', error);
       toast.error(`Erro ao fazer login: ${error.message}`);
       throw error;
     }
@@ -297,11 +251,8 @@ export function useAuth() {
   const redirectByUserType = (userObj?: Usuario) => {
     const currentUser = userObj || user;
     if (!currentUser) {
-      console.warn('No user data available for redirect');
       return;
     }
-
-    console.log('Redirecting user type:', currentUser.tipo_usuario);
 
     switch (currentUser.tipo_usuario) {
       case 'superadmin':

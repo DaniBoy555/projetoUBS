@@ -11,14 +11,6 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Debug logs
-  console.log('🛡️ ProtectedRoute Check:', {
-    path: location.pathname,
-    user: user ? { id: user.id, tipo: user.tipo_usuario, nome: user.nome } : null,
-    loading,
-    allowedRoles,
-    hasAccess: allowedRoles ? allowedRoles.includes(user?.tipo_usuario as TipoUsuario) : true
-  });
 
   // Mostrar loading enquanto verifica autenticação
   if (loading) {
@@ -34,7 +26,6 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   // Usuário não autenticado - redirecionar para login
   if (!user) {
-    console.log('🚫 Usuário não autenticado, redirecionando para /login');
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
@@ -43,18 +34,11 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     const hasPermission = allowedRoles.includes(user.tipo_usuario);
     
     if (!hasPermission) {
-      console.log('🚫 Usuário sem permissão:', {
-        userType: user.tipo_usuario,
-        allowedRoles,
-        redirectingTo: getRedirectPath(user.tipo_usuario)
-      });
-      
       // Redirecionar para a rota apropriada baseada no tipo de usuário
       return <Navigate to={getRedirectPath(user.tipo_usuario)} replace />;
     }
   }
 
-  console.log('✅ Acesso autorizado para:', location.pathname);
   return <>{children}</>;
 }
 
