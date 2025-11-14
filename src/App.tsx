@@ -1,24 +1,49 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
-import { LoginForm } from '@/components/login-form';
-import SuperAdminLayout from '@/pages/superadmin/Layout';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { useAuth } from '@/hooks/useAuth';
 import Dashboard from '@/pages/superadmin/Dashboard';
+import SuperAdminLayout from '@/pages/superadmin/Layout';
 import UserManagement from '@/pages/superadmin/UserManagement';
 import OBSManagement from '@/pages/superadmin/OBSManagement';
 import AdminOBSDashboard from '@/pages/admin-obs/Dashboard';
 import AgenteDashboard from '@/pages/agente/Dashboard';
 import PopulacaoHome from '@/pages/populacao/Home';
+import AuthLogin from '@/pages/auth/Login';
 
-// Componente de Login Customizado
-function LoginPage() {
-  return (
-    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-3xl">
-        <LoginForm />
+// Componente de redirecionamento inteligente baseado no usuário
+function RootRedirect() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Redirecionar baseado no tipo de usuário
+  switch (user.tipo_usuario) {
+    case 'superadmin':
+      return <Navigate to="/superadmin" replace />;
+    case 'admin_obs':
+      return <Navigate to="/admin" replace />;
+    case 'agente_saude':
+      return <Navigate to="/agente" replace />;
+    case 'populacao':
+      return <Navigate to="/portal" replace />;
+    default:
+      return <Navigate to="/login" replace />;
+  }
 }
 
 // Create a client
@@ -35,22 +60,79 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          {/* Rota de Login - Acessível publicamente */}
+          <Route path="/login" element={<AuthLogin />} />
 
-          {/* Rotas do Super Admin com Sidebar */}
-          <Route path="/superadmin" element={<SuperAdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="obs" element={<OBSManagement />} />
-            <Route path="users" element={<UserManagement />} />
+          {/* Portal Público - Acessível sem autenticação */}
+          <Route path="/public" element={<PopulacaoHome />} />
+
+          {/* ===== ROTAS PROTEGIDAS ===== */}
+          
+          {/* Super Admin - Acesso total ao sistema */}
+          <Route 
+            path="/superadmin" 
+            element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <SuperAdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="obs" element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <OBSManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="users" element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <UserManagement />
+              </ProtectedRoute>
+            } />
           </Route>
 
-          {/* Rotas por tipo de usuário */}
-          <Route path="/admin" element={<AdminOBSDashboard />} />
-          <Route path="/agente" element={<AgenteDashboard />} />
-          <Route path="/" element={<PopulacaoHome />} />
+          {/* Admin OBS - Gestão de uma OBS específica */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute allowedRoles={['admin_obs']}>
+                <AdminOBSDashboard />
+              </ProtectedRoute>
+            } 
+          />
 
-          {/* Rota de fallback */}
-          <Route path="/dashboard" element={<Navigate to="/superadmin" replace />} />
+          {/* Agente de Saúde - Operações do dia a dia */}
+          <Route 
+            path="/agente" 
+            element={
+              <ProtectedRoute allowedRoles={['agente_saude']}>
+                <AgenteDashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* População - Portal cidadão (protegido para usuários população) */}
+          <Route 
+            path="/portal" 
+            element={
+              <ProtectedRoute allowedRoles={['populacao']}>
+                <PopulacaoHome />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* ===== REDIRECIONAMENTOS ===== */}
+          
+          {/* Rota raiz - redireciona baseado no status de autenticação */}
+          <Route path="/" element={<RootRedirect />} />
+          
+          {/* Rotas de compatibilidade */}
+          <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+          
+          {/* Fallback - qualquer rota não encontrada vai para login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
         <Toaster />

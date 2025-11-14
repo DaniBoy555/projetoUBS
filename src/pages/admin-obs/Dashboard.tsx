@@ -1,4 +1,4 @@
-import { Building2, Users, Calendar, Heart, TrendingUp, Clock } from 'lucide-react';
+import { Users, Calendar, Heart, TrendingUp, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

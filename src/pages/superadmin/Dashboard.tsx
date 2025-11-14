@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Building2, Users, Calendar, HelpCircle, TrendingUp, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useMemo } from 'react';
+import { Building2, Users, Calendar, HelpCircle, TrendingUp, Activity, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

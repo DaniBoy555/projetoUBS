@@ -53,12 +53,39 @@ VALUES (
     now()
 );
 
+-- 3. Inserir registro na tabela public.usuarios
+INSERT INTO public.usuarios (
+    auth_id,
+    nome,
+    email,
+    tipo_usuario,
+    status,
+    created_at,
+    updated_at
+)
+VALUES (
+    'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', -- Mesmo UUID do auth.users
+    'Super Administrador',
+    'superadmin@multiobs.com',
+    'superadmin',
+    'ativo',
+    now(),
+    now()
+)
+ON CONFLICT (auth_id) DO UPDATE SET
+    nome = EXCLUDED.nome,
+    email = EXCLUDED.email,
+    tipo_usuario = EXCLUDED.tipo_usuario,
+    status = EXCLUDED.status,
+    updated_at = now();
+
 -- Verificar se o usuário foi criado corretamente
 SELECT 
     u.email,
     u.created_at,
     usuarios.nome,
-    usuarios.tipo_usuario
+    usuarios.tipo_usuario,
+    usuarios.status
 FROM auth.users u
 LEFT JOIN public.usuarios ON usuarios.auth_id = u.id
 WHERE u.email = 'superadmin@multiobs.com';

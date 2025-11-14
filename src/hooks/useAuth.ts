@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 export function useAuth() {
   const [user, setUser] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +52,13 @@ export function useAuth() {
   };
 
   const loadUserData = async (authId: string, shouldRedirect = false) => {
+    // Evitar múltiplas chamadas simultâneas
+    if (isLoadingUserData) {
+      console.log('⏳ Já está carregando dados do usuário, ignorando...');
+      return;
+    }
+
+    setIsLoadingUserData(true);
     try {
       console.log('📋 Carregando dados para authId:', authId);
 
@@ -58,16 +66,40 @@ export function useAuth() {
         .from('usuarios')
         .select('*')
         .eq('auth_id', authId)
-        .maybeSingle(); // Mudado de .single() para .maybeSingle() - retorna null se não encontrar
+        .maybeSingle();
 
       if (error) {
-        console.error('❌ Erro ao carregar usuário:', error);
+        console.error('❌ Erro detalhado ao carregar usuário:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          authId: authId
+        });
         throw error;
       }
 
-      // Se não encontrou usuário na tabela, pode ser que o registro ainda não foi criado
+      console.log('📈 Resultado da query:', {
+        encontrado: !!data,
+        dados: data,
+        authIdBuscado: authId
+      });
+
+      // Debug: Se não encontrou, verificar se existem usuários na tabela
       if (!data) {
-        console.warn('⚠️ Usuário autenticado mas sem registro na tabela usuarios');
+        console.warn('⚠️ Usuário não encontrado. Verificando tabela usuarios...');
+        const { data: allUsers, error: countError } = await supabase
+          .from('usuarios')
+          .select('auth_id, nome, email, tipo_usuario')
+          .limit(5);
+        
+        console.log('👥 Usuários existentes na tabela:', allUsers);
+        console.log('🔍 Auth ID buscado:', authId);
+        
+        if (countError) {
+          console.error('❌ Erro ao verificar usuários existentes:', countError);
+        }
+
         toast.error('Usuário não encontrado no sistema. Contate o administrador.');
         await supabase.auth.signOut();
         setUser(null);
@@ -75,7 +107,7 @@ export function useAuth() {
         return;
       }
 
-      console.log('✅ Dados do usuário carregados:', data);
+      console.log('✅ Dados do usuário carregados com sucesso:', data);
       setUser(data);
 
       // Redirecionar automaticamente se solicitado
@@ -84,8 +116,15 @@ export function useAuth() {
         setTimeout(() => redirectByUserType(data), 500);
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
+      console.error('💥 Erro completo no loadUserData:', {
+        error: error,
+        message: error?.message,
+        stack: error?.stack,
+        authId: authId
+      });
       setUser(null);
+    } finally {
+      setIsLoadingUserData(false);
     }
   };
 

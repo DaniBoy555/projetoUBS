@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { HeartHandshake, Users, Calendar, Building2, AlertCircle } from 'lucide-react';
+import { HeartHandshake, Users, Calendar, Building2, AlertCircle, Bug } from 'lucide-react';
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { debugSupabase } from '@/utils/debugSupabase';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -51,6 +52,11 @@ export function LoginForm({
   const handleDemoLogin = () => {
     setForceDemo(true);
     onSubmit({ email: 'demo@test.com', password: '123456', userType: selectedUserType });
+  };
+
+  const handleDebug = async () => {
+    console.log('🩺 Executando diagnóstico completo...');
+    await debugSupabase.runFullDiagnosis();
   };
 
   return (
@@ -149,6 +155,18 @@ export function LoginForm({
                   🧪 Modo Demo (Debug)
                 </Button>
               )}
+
+              <Button 
+                type="button" 
+                variant="secondary" 
+                size="sm"
+                className="w-full text-xs" 
+                onClick={handleDebug}
+                disabled={isLoading}
+              >
+                <Bug className="h-3 w-3 mr-1" />
+                Diagnóstico Supabase (veja o console)
+              </Button>
 
               <div className="text-center text-sm">
                 Primeiro acesso?{" "}
