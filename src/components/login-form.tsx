@@ -37,8 +37,10 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
+      console.log('Tentando fazer login com:', data.email);
       await signIn(data.email, data.password);
     } catch (error) {
+      console.error('Erro no formulário de login:', error);
       // Error is already handled in useAuth hook
     } finally {
       setIsLoading(false);
