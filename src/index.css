@@ -96,3 +96,34 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Sidebar CSS Support - Fixed Implementation */
+[data-slot="sidebar-wrapper"] {
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
+}
+
+[data-slot="sidebar-gap"] {
+  width: var(--sidebar-width);
+}
+
+[data-state="collapsed"] [data-slot="sidebar-gap"] {
+  width: 0;
+}
+
+[data-collapsible="offcanvas"] [data-slot="sidebar-gap"] {
+  width: 0;
+}
+
+[data-collapsible="icon"] [data-slot="sidebar-gap"] {
+  width: var(--sidebar-width-icon);
+}
+
+[data-slot="sidebar-container"] {
+  width: var(--sidebar-width);
+}
+
+[data-collapsible="icon"] [data-slot="sidebar-container"] {
+  width: var(--sidebar-width-icon);
+}
+

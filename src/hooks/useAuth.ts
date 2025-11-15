@@ -89,7 +89,7 @@ export function useAuth() {
       console.log('🔍 Fazendo query na tabela usuarios...');
       
       try {
-        const { data, error } = await Promise.race([queryPromise, queryTimeout]);
+        const { data, error } = await Promise.race([queryPromise, queryTimeout]) as any;
         
         console.log('📥 Resposta da query:', { data, error });
 
@@ -201,7 +201,7 @@ export function useAuth() {
     };
   };
 
-  const signIn = async (email: string, password: string, demoUserType?: string, forceDemo = false) => {
+  const signIn = async (email: string, password: string, _demoUserType?: string, forceDemo = false) => {
     try {
       // If Supabase is not configured, use demo mode
       if (!isSupabaseConfigured) {

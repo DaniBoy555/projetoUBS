@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Building2, Users, Calendar, HelpCircle, TrendingUp, Activity, ArrowUpRight } from 'lucide-react';
+import { Building2, Users, Calendar, HelpCircle, TrendingUp, Activity, ArrowUpRight, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,15 +39,25 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Header da página */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Bem-vindo ao painel de controle do sistema Multi-OBS
+        </p>
+      </div>
+
       {/* Cards de estatísticas principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de OBS</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Total de OBS</CardTitle>
+            <div className="p-2 bg-blue-500 rounded-lg">
+              <Building2 className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalOBS}</div>
+            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{stats.totalOBS}</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600 flex items-center gap-1">
                 <TrendingUp className="h-3 w-3" />
@@ -57,13 +67,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-green-500 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/50 dark:to-green-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usuários no Sistema</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Usuários no Sistema</CardTitle>
+            <div className="p-2 bg-green-500 rounded-lg">
+              <Users className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsuarios}</div>
+            <div className="text-2xl font-bold text-green-900 dark:text-green-100">{stats.totalUsuarios}</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600 flex items-center gap-1">
                 <Activity className="h-3 w-3" />
@@ -73,26 +85,30 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/50 dark:to-purple-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Eventos de Saúde</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">Eventos de Saúde</CardTitle>
+            <div className="p-2 bg-purple-500 rounded-lg">
+              <Calendar className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalEventos}</div>
+            <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{stats.totalEventos}</div>
             <p className="text-xs text-muted-foreground">
               Eventos cadastrados no mês
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/50 dark:to-orange-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dúvidas da População</CardTitle>
-            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-orange-700 dark:text-orange-300">Dúvidas da População</CardTitle>
+            <div className="p-2 bg-orange-500 rounded-lg">
+              <HelpCircle className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.duvidasPendentes}</div>
+            <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{stats.duvidasPendentes}</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-amber-600 flex items-center gap-1">
                 Pendentes de {stats.totalDuvidas} total
@@ -217,36 +233,59 @@ export default function Dashboard() {
       </div>
 
       {/* Distribuição por tipo de usuário */}
-      <Card>
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Distribuição de Usuários por Tipo</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-blue-600" />
+            Distribuição de Usuários por Tipo
+          </CardTitle>
           <CardDescription>
             Quantidade de usuários em cada categoria do sistema
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-4">
-            <div className="flex flex-col gap-2 rounded-lg border p-4">
-              <span className="text-sm text-muted-foreground">Super Admins</span>
-              <span className="text-2xl font-bold">
+            <div className="flex flex-col gap-3 rounded-lg border-2 border-red-200 bg-gradient-to-br from-red-50 to-red-100 p-4 dark:from-red-950/30 dark:to-red-900/30">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-red-500 rounded-md">
+                  <Shield className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-sm font-medium text-red-700 dark:text-red-300">Super Admins</span>
+              </div>
+              <span className="text-2xl font-bold text-red-900 dark:text-red-100">
                 {mockUsuarios.filter(u => u.tipo_usuario === 'superadmin').length}
               </span>
             </div>
-            <div className="flex flex-col gap-2 rounded-lg border p-4">
-              <span className="text-sm text-muted-foreground">Admin OBS</span>
-              <span className="text-2xl font-bold">
+            <div className="flex flex-col gap-3 rounded-lg border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 dark:from-blue-950/30 dark:to-blue-900/30">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-blue-500 rounded-md">
+                  <Building2 className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Admin OBS</span>
+              </div>
+              <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                 {mockUsuarios.filter(u => u.tipo_usuario === 'admin_obs').length}
               </span>
             </div>
-            <div className="flex flex-col gap-2 rounded-lg border p-4">
-              <span className="text-sm text-muted-foreground">Agentes de Saúde</span>
-              <span className="text-2xl font-bold">
+            <div className="flex flex-col gap-3 rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4 dark:from-green-950/30 dark:to-green-900/30">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-green-500 rounded-md">
+                  <Activity className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">Agentes de Saúde</span>
+              </div>
+              <span className="text-2xl font-bold text-green-900 dark:text-green-100">
                 {mockUsuarios.filter(u => u.tipo_usuario === 'agente_saude').length}
               </span>
             </div>
-            <div className="flex flex-col gap-2 rounded-lg border p-4">
-              <span className="text-sm text-muted-foreground">População</span>
-              <span className="text-2xl font-bold">
+            <div className="flex flex-col gap-3 rounded-lg border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 p-4 dark:from-purple-950/30 dark:to-purple-900/30">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-purple-500 rounded-md">
+                  <Users className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">População</span>
+              </div>
+              <span className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                 {mockUsuarios.filter(u => u.tipo_usuario === 'populacao').length}
               </span>
             </div>
