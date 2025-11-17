@@ -1,4 +1,14 @@
-import { Building2, Users, Home, LogOut, Settings, FileText, BarChart3, Shield } from 'lucide-react';
+import {
+  Building2,
+  Users,
+  Home,
+  LogOut,
+  Settings,
+  FileText,
+  BarChart3,
+  Shield,
+  ClipboardList,
+} from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -12,9 +22,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const data = {
   navMain: [
@@ -48,6 +68,11 @@ const data = {
   ],
   navSecondary: [
     {
+      title: "Logs de Auditoria",
+      url: "/superadmin/logs",
+      icon: ClipboardList,
+    },
+    {
       title: "Configurações",
       url: "/superadmin/settings",
       icon: Settings,
@@ -60,10 +85,11 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
+  const { collapsible = "icon", ...rest } = props;
 
   const handleSignOut = async () => {
     await signOut();
@@ -71,13 +97,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible={collapsible} {...rest}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
+        <div className="flex items-center gap-2 px-2 py-2 transition-all group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg">
             <Building2 className="size-4" />
           </div>
-          <div className="grid flex-1 text-left text-sm leading-tight">
+          <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
             <span className="truncate font-semibold text-foreground">Multi-OBS</span>
             <span className="truncate text-xs text-muted-foreground">Sistema de Saúde</span>
           </div>
@@ -93,33 +119,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {item.items ? (
-                    // Item com submenu
-                    <div className="space-y-1">
-                      <SidebarMenuButton className="text-muted-foreground">
+                    <>
+                      <SidebarMenuButton
+                        className="text-muted-foreground"
+                        tooltip={item.title}
+                      >
                         <item.icon className="size-4" />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
-                      <div className="ml-6 space-y-1">
+                      <SidebarMenuSub>
                         {item.items.map((subItem) => (
-                          <SidebarMenuButton 
-                            key={subItem.title}
-                            asChild
-                            isActive={location.pathname === subItem.url}
-                            className="text-sm"
-                          >
-                            <Link to={subItem.url}>
-                              <subItem.icon className="size-3" />
-                              <span>{subItem.title}</span>
-                            </Link>
-                          </SidebarMenuButton>
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={location.pathname === subItem.url}
+                            >
+                              <Link to={subItem.url}>
+                                <subItem.icon className="size-4" />
+                                <span>{subItem.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
                         ))}
-                      </div>
-                    </div>
+                      </SidebarMenuSub>
+                    </>
                   ) : (
-                    // Item simples
-                    <SidebarMenuButton 
+                    <SidebarMenuButton
                       asChild
                       isActive={location.pathname === item.url}
+                      tooltip={item.title}
                     >
                       <Link to={item.url}>
                         <item.icon className="size-4" />
@@ -143,6 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuButton 
                     asChild
                     isActive={location.pathname === item.url}
+                    tooltip={item.title}
                   >
                     <Link to={item.url}>
                       <item.icon className="size-4" />
@@ -161,14 +190,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground">
+                <SidebarMenuButton className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
                   <Avatar className="h-6 w-6 rounded-lg">
                     <AvatarImage src="" alt={user?.nome} />
                     <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs">
                       {user?.nome?.charAt(0) || 'SA'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                     <span className="truncate font-semibold text-xs">{user?.nome || 'Super Admin'}</span>
                     <span className="truncate text-xs text-muted-foreground capitalize">{user?.tipo_usuario || 'superadmin'}</span>
                   </div>
@@ -194,6 +223,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

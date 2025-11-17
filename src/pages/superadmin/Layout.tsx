@@ -12,6 +12,7 @@ export default function SuperAdminLayout() {
     if (path === '/superadmin/obs') return 'Organizações';
     if (path === '/superadmin/users') return 'Usuários';
     if (path === '/superadmin/reports') return 'Relatórios';
+    if (path === '/superadmin/logs') return 'Logs de Auditoria';
     if (path === '/superadmin/settings') return 'Configurações';
     if (path === '/superadmin/docs') return 'Documentação';
     return 'Dashboard';

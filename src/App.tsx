@@ -8,6 +8,7 @@ import Dashboard from '@/pages/superadmin/Dashboard';
 import SuperAdminLayout from '@/pages/superadmin/Layout';
 import UserManagement from '@/pages/superadmin/UserManagement';
 import OBSManagement from '@/pages/superadmin/OBSManagement';
+import AuditLogs from '@/pages/superadmin/AuditLogs';
 import AdminOBSDashboard from '@/pages/admin-obs/Dashboard';
 import AgenteDashboard from '@/pages/agente/Dashboard';
 import PopulacaoHome from '@/pages/populacao/Home';
@@ -97,6 +98,11 @@ function App() {
             <Route path="users" element={
               <ProtectedRoute allowedRoles={['superadmin']}>
                 <UserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="logs" element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <AuditLogs />
               </ProtectedRoute>
             } />
           </Route>
