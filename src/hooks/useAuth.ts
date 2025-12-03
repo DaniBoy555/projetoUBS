@@ -14,7 +14,7 @@ export function useAuth() {
     // Timeout de segurança para evitar loading infinito
     const loadingTimeout = setTimeout(() => {
       if (isMounted && loading) {
-        console.log('Loading timeout reached, setting loading to false');
+        console.log('Timeout de carregamento atingido, definindo loading como false');
         setLoading(false);
       }
     }, 10000); // 10 segundos máximo de loading
@@ -30,7 +30,7 @@ export function useAuth() {
     // Listener de mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 Auth state changed:', event, session?.user?.email);
+        console.log('🔄 Estado de autenticação alterado:', event, session?.user?.email);
         if (!isMounted) return;
         
         if (event === 'SIGNED_IN' && session?.user) {
@@ -64,7 +64,7 @@ export function useAuth() {
         await loadUserData(session.user.id, false, isMounted);
       }
     } catch (error) {
-      console.error('Error checking user:', error);
+      console.error('Erro ao verificar usuário:', error);
     } finally {
       if (isMounted) setLoading(false);
     }
@@ -75,155 +75,51 @@ export function useAuth() {
       console.log('📊 Carregando dados do usuário:', authId);
       if (!isMounted) return;
 
-      // Timeout para a query - se demorar mais de 5 segundos, usar mock
-      const queryTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 5000)
-      );
-
-      const queryPromise = supabase
+      // Busca dados na tabela 'usuarios'
+      const { data, error } = await supabase
         .from('usuarios')
         .select('*')
         .eq('auth_id', authId)
         .maybeSingle();
 
-      console.log('🔍 Fazendo query na tabela usuarios...');
-      
-      try {
-        const { data, error } = await Promise.race([queryPromise, queryTimeout]) as any;
-        
-        console.log('📥 Resposta da query:', { data, error });
-
-        if (error) {
-          console.error('❌ Error loading user data:', error);
-          // Se erro de RLS ou tabela não existe, usar mock
-          if (error.code === 'PGRST116' || 
-              error.message.includes('relation "public.usuarios" does not exist') ||
-              error.message.includes('permission denied') ||
-              error.code === '42501') {
-            console.log('🔄 Problema de permissão/tabela, usando dados mock');
-            const mockUser = createMockUserFromAuth(authId);
-            if (isMounted) {
-              setUser(mockUser);
-              if (shouldRedirect) {
-                console.log('🚀 Redirecionando usuário mock...');
-                setTimeout(() => redirectByUserType(mockUser), 500);
-              }
-            }
-            return;
-          }
-          throw error;
-        }
-
-        // Se não encontrou usuário na tabela, criar um mock
-        if (!data) {
-          console.log('⚠️ Usuário não encontrado na tabela, criando mock');
-          const mockUser = createMockUserFromAuth(authId);
-          if (isMounted) {
-            setUser(mockUser);
-            if (shouldRedirect) {
-              console.log('🚀 Redirecionando usuário mock...');
-              setTimeout(() => redirectByUserType(mockUser), 500);
-            }
-          }
-          return;
-        }
-
-        // Usuário encontrado na tabela
-        console.log('✅ Dados do usuário encontrados:', data);
-        if (isMounted) {
-          setUser(data);
-          if (shouldRedirect) {
-            console.log('🚀 Redirecionando usuário real:', data.tipo_usuario);
-            setTimeout(() => redirectByUserType(data), 500);
-          }
-        }
-      } catch (timeoutError: any) {
-        if (timeoutError.message === 'Query timeout') {
-          console.log('⏰ Query timeout, usando dados mock');
-          const mockUser = createMockUserFromAuth(authId);
-          if (isMounted) {
-            setUser(mockUser);
-            if (shouldRedirect) {
-              console.log('🚀 Redirecionando usuário mock após timeout...');
-              setTimeout(() => redirectByUserType(mockUser), 500);
-            }
-          }
-        } else {
-          throw timeoutError;
-        }
+      if (error) {
+        console.error('❌ Erro ao carregar dados do usuário:', error);
+        // Em caso de erro crítico, desloga para evitar estado inconsistente
+        // Mas se for apenas erro de conexão, mantém a sessão
+        throw error;
       }
-    } catch (error: any) {
-      console.error('❌ Error loading user data:', error);
+
+      if (!data) {
+        console.warn('⚠️ Usuário autenticado mas não encontrado na tabela pública.');
+        // Aqui poderíamos criar o usuário automaticamente se fosse o caso,
+        // ou deslogar. Por enquanto, vamos manter o usuário logado mas sem perfil completo
+        // ou redirecionar para uma página de "Complete seu cadastro".
+        return;
+      }
+
+      // Usuário encontrado na tabela
+      console.log('✅ Dados do usuário encontrados:', data);
       if (isMounted) {
-        console.log('🔄 Usando fallback para dados mock devido a erro');
-        const mockUser = createMockUserFromAuth(authId);
-        setUser(mockUser);
+        setUser(data);
         if (shouldRedirect) {
-          setTimeout(() => redirectByUserType(mockUser), 1000);
+          console.log('🚀 Redirecionando usuário real:', data.tipo_usuario);
+          setTimeout(() => redirectByUserType(data), 500);
         }
       }
+
+    } catch (error: any) {
+      console.error('❌ Erro ao carregar dados do usuário:', error);
+      toast.error('Erro ao carregar perfil do usuário.');
     }
   };
 
-  const createMockUserFromAuth = (authId: string): Usuario => {
-    // Se for o UUID específico do superadmin, usar dados corretos
-    if (authId === 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11') {
-      return {
-        id: '6d245cc7-1406-4e13-b3da-1752e792aa4d',
-        auth_id: authId,
-        obs_id: null,
-        nome: 'Super Administrador',
-        email: 'superadmin@multiobs.com',
-        telefone: null,
-        tipo_usuario: 'superadmin',
-        posto_saude: null,
-        foto_url: null,
-        status: 'ativo',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-    }
-    
-    // Para outros usuários, usar dados genéricos
-    return {
-      id: authId,
-      auth_id: authId,
-      obs_id: null,
-      nome: 'SuperAdmin Demo',
-      email: 'admin@demo.com',
-      telefone: null,
-      tipo_usuario: 'superadmin',
-      posto_saude: null,
-      foto_url: null,
-      status: 'ativo',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  };
-
-  const signIn = async (email: string, password: string, _demoUserType?: string, forceDemo = false) => {
+  const signIn = async (email: string, password: string) => {
     try {
-      // If Supabase is not configured, use demo mode
       if (!isSupabaseConfigured) {
-        toast.info('Modo demonstração ativado - Supabase não configurado');
-        const mockUser = createMockUserFromAuth('demo-' + Date.now());
-        setUser(mockUser);
-        toast.success('Login realizado com sucesso (modo demo)!');
-        setTimeout(() => redirectByUserType(mockUser), 1000);
+        toast.error('Supabase não configurado. Verifique o arquivo .env');
         return;
       }
 
-      // Check for demo mode ONLY if explicitly forced
-      if (forceDemo) {
-        toast.info('Modo demonstração ativado');
-        const mockUser = createMockUserFromAuth('demo-' + Date.now());
-        setUser(mockUser);
-        toast.success('Login realizado com sucesso (modo demo)!');
-        setTimeout(() => redirectByUserType(mockUser), 1000);
-        return;
-      }
-
-      // Tentar autenticação real com Supabase
       console.log('🔐 Tentando autenticação com Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -243,12 +139,11 @@ export function useAuth() {
 
       if (data.user) {
         console.log('✅ Login Supabase bem-sucedido:', data.user.email);
-        console.log('🆔 User ID:', data.user.id);
         toast.success('Login realizado com sucesso!');
-        // Não redirecionar automaticamente aqui, deixar o onAuthStateChange handle
+        // Não redirecionar automaticamente aqui, deixar o onAuthStateChange lidar
       }
     } catch (error: any) {
-      console.error('Error during sign in:', error);
+      console.error('Erro durante o login:', error);
       toast.error(`Erro ao fazer login: ${error.message}`);
       throw error;
     }

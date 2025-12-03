@@ -2,93 +2,80 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { supabase } from '@/lib/supabase';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
+// Esquema de validação Zod
 const obsSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   cidade: z.string().min(2, 'Cidade é obrigatória'),
-  estado: z.string().min(2, 'Estado é obrigatório'),
-  cnpj: z.string().optional(),
-  telefone: z.string().optional(),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
-  dominio: z.string().optional(),
+  estado: z.string().length(2, 'Use a sigla do estado (ex: SP)'),
+  status: z.enum(['ativo', 'inativo', 'suspenso']),
+  plano: z.enum(['basico', 'premium', 'enterprise']),
 });
 
-type OBSFormData = z.infer<typeof obsSchema>;
+type OBSFormValues = z.infer<typeof obsSchema>;
 
-const estadosBrasil = [
-  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
-  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
-  'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-];
+interface FormOBSProps {
+  initialData?: OBSFormValues & { id?: string };
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
 
-export function FormOBS({ onSuccess }: { onSuccess?: () => void }) {
-  const form = useForm<OBSFormData>({
+export function FormOBS({ initialData, onSuccess, onCancel }: FormOBSProps) {
+  const form = useForm<OBSFormValues>({
     resolver: zodResolver(obsSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       nome: '',
       cidade: '',
       estado: '',
-      cnpj: '',
-      telefone: '',
-      email: '',
-      dominio: '',
+      status: 'ativo',
+      plano: 'basico',
     },
   });
 
-  const onSubmit = async (data: OBSFormData) => {
+  const onSubmit = async (data: OBSFormValues) => {
     try {
-      // Limpar campos vazios
-      const cleanData = Object.fromEntries(
-        Object.entries(data).filter(([, value]) => value !== '')
-      );
+      // Se tiver ID, é edição
+      if (initialData?.id) {
+        const { error } = await supabase
+          .from('obs')
+          .update(data)
+          .eq('id', initialData.id);
 
-      const { error } = await supabase
-        .from('obs')
-        .insert({
-          ...cleanData,
-          status: 'ativo',
-          plano: 'basico',
-        });
+        if (error) throw error;
+        toast.success('OBS atualizada com sucesso!');
+      } else {
+        // Criação
+        const { error } = await supabase
+          .from('obs')
+          .insert(data);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success('OBS criada com sucesso!');
+      }
 
-      toast.success('OBS criada com sucesso!');
-      form.reset();
       onSuccess?.();
     } catch (error: any) {
-      toast.error(`Erro ao criar OBS: ${error.message}`);
+      console.error('Erro ao salvar OBS:', error);
+      toast.error(`Erro ao salvar: ${error.message}`);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="nome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome da OBS *</FormLabel>
+              <FormLabel>Nome da OBS</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: UBS Centro" {...field} />
+                <Input placeholder="Ex: UBS Central" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -101,7 +88,7 @@ export function FormOBS({ onSuccess }: { onSuccess?: () => void }) {
             name="cidade"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cidade *</FormLabel>
+                <FormLabel>Cidade</FormLabel>
                 <FormControl>
                   <Input placeholder="Ex: São Paulo" {...field} />
                 </FormControl>
@@ -115,19 +102,56 @@ export function FormOBS({ onSuccess }: { onSuccess?: () => void }) {
             name="estado"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Estado *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <FormLabel>Estado (UF)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Ex: SP" maxLength={2} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o estado" />
+                      <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {estadosBrasil.map((estado) => (
-                      <SelectItem key={estado} value={estado}>
-                        {estado}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="inativo">Inativo</SelectItem>
+                    <SelectItem value="suspenso">Suspenso</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="plano"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Plano</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o plano" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="basico">Básico</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -136,67 +160,14 @@ export function FormOBS({ onSuccess }: { onSuccess?: () => void }) {
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="cnpj"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>CNPJ</FormLabel>
-              <FormControl>
-                <Input placeholder="00.000.000/0000-00" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="telefone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone</FormLabel>
-                <FormControl>
-                  <Input placeholder="(11) 99999-9999" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="contato@obs.gov.br" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="flex justify-end gap-2 pt-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="submit">
+            {initialData?.id ? 'Salvar Alterações' : 'Criar OBS'}
+          </Button>
         </div>
-
-        <FormField
-          control={form.control}
-          name="dominio"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Domínio Personalizado</FormLabel>
-              <FormControl>
-                <Input placeholder="saopaulo.multi-obs.com.br" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" className="w-full">
-          Criar OBS
-        </Button>
       </form>
     </Form>
   );

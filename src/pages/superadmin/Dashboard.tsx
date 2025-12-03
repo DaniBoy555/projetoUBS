@@ -1,14 +1,19 @@
-import { useMemo } from 'react';
-import { Building2, Users, Calendar, HelpCircle, TrendingUp, Activity, ArrowUpRight, Shield } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Building2, Users, Calendar, HelpCircle, TrendingUp, Activity, ArrowUpRight, Shield, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FormOBS } from "@/components/forms/FormOBS";
+import { FormUser } from "@/components/forms/FormUser";
 import { mockOBS, mockUsuarios, mockEventos, mockDuvidas } from '@/lib/mock-data';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [openOBS, setOpenOBS] = useState(false);
+  const [openUser, setOpenUser] = useState(false);
 
   // Cálculo de estatísticas
   const stats = useMemo(() => {
@@ -160,8 +165,8 @@ export default function Dashboard() {
                           obs.plano === 'enterprise'
                             ? 'default'
                             : obs.plano === 'premium'
-                            ? 'secondary'
-                            : 'outline'
+                              ? 'secondary'
+                              : 'outline'
                         }
                       >
                         {obs.plano}
@@ -173,8 +178,8 @@ export default function Dashboard() {
                           obs.status === 'ativo'
                             ? 'default'
                             : obs.status === 'inativo'
-                            ? 'secondary'
-                            : 'destructive'
+                              ? 'secondary'
+                              : 'destructive'
                         }
                       >
                         {obs.status}
@@ -196,6 +201,36 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
+            <Dialog open={openOBS} onOpenChange={setOpenOBS}>
+              <DialogTrigger asChild>
+                <Button className="justify-start w-full" variant="default">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nova OBS
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Nova Organização de Saúde</DialogTitle>
+                </DialogHeader>
+                <FormOBS onSuccess={() => setOpenOBS(false)} onCancel={() => setOpenOBS(false)} />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={openUser} onOpenChange={setOpenUser}>
+              <DialogTrigger asChild>
+                <Button className="justify-start w-full" variant="default">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Novo Usuário
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Novo Usuário</DialogTitle>
+                </DialogHeader>
+                <FormUser onSuccess={() => setOpenUser(false)} onCancel={() => setOpenUser(false)} />
+              </DialogContent>
+            </Dialog>
+
             <Button
               className="justify-start"
               variant="outline"

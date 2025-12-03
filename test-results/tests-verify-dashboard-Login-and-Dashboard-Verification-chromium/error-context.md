@@ -1,0 +1,228 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e14]:
+          - generic [ref=e15]: Multi-OBS
+          - generic [ref=e16]: Sistema de Saúde
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]: Menu Principal
+          - list [ref=e21]:
+            - listitem [ref=e22]:
+              - link "Dashboard" [ref=e23] [cursor=pointer]:
+                - /url: /superadmin
+                - img [ref=e24]
+                - generic [ref=e27]: Dashboard
+            - listitem [ref=e28]:
+              - button "Gestão" [ref=e29] [cursor=pointer]:
+                - img [ref=e30]
+                - generic [ref=e32]: Gestão
+              - list [ref=e33]:
+                - listitem [ref=e34]:
+                  - link "Organizações" [ref=e35] [cursor=pointer]:
+                    - /url: /superadmin/obs
+                    - img [ref=e36]
+                    - generic [ref=e40]: Organizações
+                - listitem [ref=e41]:
+                  - link "Usuários" [ref=e42] [cursor=pointer]:
+                    - /url: /superadmin/users
+                    - img [ref=e43]
+                    - generic [ref=e48]: Usuários
+            - listitem [ref=e49]:
+              - link "Relatórios" [ref=e50] [cursor=pointer]:
+                - /url: /superadmin/reports
+                - img [ref=e51]
+                - generic [ref=e53]: Relatórios
+        - generic [ref=e54]:
+          - generic [ref=e55]: Configurações
+          - list [ref=e57]:
+            - listitem [ref=e58]:
+              - link "Logs de Auditoria" [ref=e59] [cursor=pointer]:
+                - /url: /superadmin/logs
+                - img [ref=e60]
+                - generic [ref=e63]: Logs de Auditoria
+            - listitem [ref=e64]:
+              - link "Configurações" [ref=e65] [cursor=pointer]:
+                - /url: /superadmin/settings
+                - img [ref=e66]
+                - generic [ref=e69]: Configurações
+            - listitem [ref=e70]:
+              - link "Documentação" [ref=e71] [cursor=pointer]:
+                - /url: /superadmin/docs
+                - img [ref=e72]
+                - generic [ref=e75]: Documentação
+      - list [ref=e77]:
+        - listitem [ref=e78]:
+          - button "S Super Administrador superadmin" [ref=e79] [cursor=pointer]:
+            - generic [ref=e81]: S
+            - generic [ref=e82]:
+              - generic [ref=e83]: Super Administrador
+              - generic [ref=e84]: superadmin
+      - button "Toggle Sidebar" [ref=e85] [cursor=pointer]
+    - main [ref=e86]:
+      - generic [ref=e87]:
+        - button "Toggle Sidebar" [ref=e88] [cursor=pointer]:
+          - img
+          - generic [ref=e89]: Toggle Sidebar
+        - navigation "breadcrumb" [ref=e91]:
+          - list [ref=e92]:
+            - listitem [ref=e93]:
+              - link "Super Admin" [ref=e94] [cursor=pointer]:
+                - /url: /superadmin
+            - listitem [ref=e95]:
+              - img [ref=e96]
+            - listitem [ref=e98]:
+              - link "Dashboard" [disabled] [ref=e99]
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - heading "Dashboard" [level=1] [ref=e103]
+          - paragraph [ref=e104]: Bem-vindo ao painel de controle do sistema Multi-OBS
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - generic [ref=e108]: Total de OBS
+              - img [ref=e110]
+            - generic [ref=e114]:
+              - generic [ref=e115]: "10"
+              - paragraph [ref=e116]:
+                - generic [ref=e117]:
+                  - img [ref=e118]
+                  - text: 80.0% ativas
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - generic [ref=e123]: Usuários no Sistema
+              - img [ref=e125]
+            - generic [ref=e130]:
+              - generic [ref=e131]: "6"
+              - paragraph [ref=e132]:
+                - generic [ref=e133]:
+                  - img [ref=e134]
+                  - text: 6 ativos
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - generic [ref=e138]: Eventos de Saúde
+              - img [ref=e140]
+            - generic [ref=e142]:
+              - generic [ref=e143]: "2"
+              - paragraph [ref=e144]: Eventos cadastrados no mês
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: Dúvidas da População
+              - img [ref=e149]
+            - generic [ref=e152]:
+              - generic [ref=e153]: "1"
+              - paragraph [ref=e154]:
+                - generic [ref=e155]: Pendentes de 2 total
+        - generic [ref=e156]:
+          - generic [ref=e157]:
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - generic [ref=e161]: OBS Recentes
+                - generic [ref=e162]: Últimas organizações cadastradas no sistema
+              - button "Ver todas" [ref=e163] [cursor=pointer]:
+                - text: Ver todas
+                - img
+            - table [ref=e166]:
+              - rowgroup [ref=e167]:
+                - row "Nome Localização Plano Status" [ref=e168]:
+                  - cell "Nome" [ref=e169]
+                  - cell "Localização" [ref=e170]
+                  - cell "Plano" [ref=e171]
+                  - cell "Status" [ref=e172]
+              - rowgroup [ref=e173]:
+                - row "UBS Centro São Paulo São Paulo, SP premium ativo" [ref=e174]:
+                  - cell "UBS Centro São Paulo" [ref=e175]
+                  - cell "São Paulo, SP" [ref=e176]
+                  - cell "premium" [ref=e177]:
+                    - generic [ref=e178]: premium
+                  - cell "ativo" [ref=e179]:
+                    - generic [ref=e180]: ativo
+                - row "UBS Vila Nova Rio de Janeiro Rio de Janeiro, RJ enterprise ativo" [ref=e181]:
+                  - cell "UBS Vila Nova Rio de Janeiro" [ref=e182]
+                  - cell "Rio de Janeiro, RJ" [ref=e183]
+                  - cell "enterprise" [ref=e184]:
+                    - generic [ref=e185]: enterprise
+                  - cell "ativo" [ref=e186]:
+                    - generic [ref=e187]: ativo
+                - row "UBS Jardim das Flores Belo Horizonte Belo Horizonte, MG basico ativo" [ref=e188]:
+                  - cell "UBS Jardim das Flores Belo Horizonte" [ref=e189]
+                  - cell "Belo Horizonte, MG" [ref=e190]
+                  - cell "basico" [ref=e191]:
+                    - generic [ref=e192]: basico
+                  - cell "ativo" [ref=e193]:
+                    - generic [ref=e194]: ativo
+                - row "UBS Parque Sul Porto Alegre Porto Alegre, RS premium ativo" [ref=e195]:
+                  - cell "UBS Parque Sul Porto Alegre" [ref=e196]
+                  - cell "Porto Alegre, RS" [ref=e197]
+                  - cell "premium" [ref=e198]:
+                    - generic [ref=e199]: premium
+                  - cell "ativo" [ref=e200]:
+                    - generic [ref=e201]: ativo
+                - row "UBS Centro Curitiba Curitiba, PR basico inativo" [ref=e202]:
+                  - cell "UBS Centro Curitiba" [ref=e203]
+                  - cell "Curitiba, PR" [ref=e204]
+                  - cell "basico" [ref=e205]:
+                    - generic [ref=e206]: basico
+                  - cell "inativo" [ref=e207]:
+                    - generic [ref=e208]: inativo
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - generic [ref=e211]: Ações Rápidas
+              - generic [ref=e212]: Acesse as principais funcionalidades
+            - generic [ref=e213]:
+              - button "Nova OBS" [ref=e214] [cursor=pointer]:
+                - img
+                - text: Nova OBS
+              - button "Novo Usuário" [ref=e215] [cursor=pointer]:
+                - img
+                - text: Novo Usuário
+              - button "Gerenciar OBS" [ref=e216] [cursor=pointer]:
+                - img
+                - text: Gerenciar OBS
+              - button "Gerenciar Usuários" [ref=e217] [cursor=pointer]:
+                - img
+                - text: Gerenciar Usuários
+              - button "Ver Eventos" [ref=e218] [cursor=pointer]:
+                - img
+                - text: Ver Eventos
+              - button "Dúvidas Pendentes" [ref=e219] [cursor=pointer]:
+                - img
+                - text: Dúvidas Pendentes
+        - generic [ref=e220]:
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - img [ref=e223]
+              - text: Distribuição de Usuários por Tipo
+            - generic [ref=e228]: Quantidade de usuários em cada categoria do sistema
+          - generic [ref=e230]:
+            - generic [ref=e231]:
+              - generic [ref=e232]:
+                - img [ref=e234]
+                - generic [ref=e236]: Super Admins
+              - generic [ref=e237]: "1"
+            - generic [ref=e238]:
+              - generic [ref=e239]:
+                - img [ref=e241]
+                - generic [ref=e245]: Admin OBS
+              - generic [ref=e246]: "2"
+            - generic [ref=e247]:
+              - generic [ref=e248]:
+                - img [ref=e250]
+                - generic [ref=e252]: Agentes de Saúde
+              - generic [ref=e253]: "3"
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - img [ref=e257]
+                - generic [ref=e262]: População
+              - generic [ref=e263]: "0"
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e264]:
+        - img [ref=e266]
+        - generic [ref=e270]: Login realizado com sucesso!
+```
