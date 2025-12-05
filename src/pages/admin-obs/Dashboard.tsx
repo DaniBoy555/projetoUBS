@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Calendar, Heart, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { toast } from 'sonner';
 
 export default function AdminOBSDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     agentesAtivos: 0,
@@ -222,11 +224,11 @@ export default function AdminOBSDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
-                <Button className="h-20 flex-col">
+                <Button className="h-20 flex-col" onClick={() => navigate('/admin/eventos')}>
                   <Calendar className="h-6 w-6 mb-2" />
                   Novo Evento
                 </Button>
-                <Button variant="outline" className="h-20 flex-col">
+                <Button variant="outline" className="h-20 flex-col" onClick={() => navigate('/admin/agentes')}>
                   <Users className="h-6 w-6 mb-2" />
                   Gerenciar Agentes
                 </Button>

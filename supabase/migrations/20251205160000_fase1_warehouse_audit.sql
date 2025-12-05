@@ -45,7 +45,7 @@ create policy "Usuarios podem inserir logs de auditoria"
 
 -- Política: Apenas Admins podem ver logs de auditoria
 -- Assumindo verificação de role 'superadmin' via tabela public.usuarios ou mecanismo similar
--- Por simplicidade nesta fase inicial, permitimos leitura se o usuário for superadmin em public.usuarios
+-- Correção: usando auth_id e tipo_usuario conforme schema real
 create policy "Admins podem ver logs de auditoria"
     on public.audit_logs
     for select
@@ -53,7 +53,7 @@ create policy "Admins podem ver logs de auditoria"
     using (
         exists (
             select 1 from public.usuarios
-            where usuarios.id = auth.uid()
-            and usuarios.role = 'superadmin'
+            where usuarios.auth_id = auth.uid()
+            and usuarios.tipo_usuario = 'superadmin'
         )
     );
