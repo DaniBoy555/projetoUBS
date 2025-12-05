@@ -1,802 +1,237 @@
-# 🏥 Sistema Multi-OBS - Documento Consolidado e Checklist
+# PROJETO MULTI-OBS SAÚDE (Guide & Overview)
 
-## 📋 ÍNDICE
+## 📌 VISÃO GERAL
+Este é um sistema **SaaS Multi-tenant** de Gestão de Saúde Pública para prefeituras, focado em **atender Múltiplas UBS (Unidades Básicas de Saúde)** sob uma única administração municipal.
 
-1. [Status do Projeto](#status-do-projeto)
-2. [Tecnologias Utilizadas](#tecnologias-utilizadas)
-3. [Arquitetura e Estrutura](#arquitetura-e-estrutura)
-4. [Funcionalidades Implementadas](#funcionalidades-implementadas)
-5. [Sistema de IA Funcional](#sistema-de-ia-funcional)
-6. [Checklist de Desenvolvimento](#checklist-de-desenvolvimento)
-7. [Próximos Passos](#próximos-passos)
-8. [Exemplos de Código](#exemplos-de-código)
-9. [Como Executar](#como-executar)
+**Diferencial Chave:** Foco na **Experiência do Usuário (UX)** e **Interface Moderna** (Shadcn/UI), fugindo do padrão "sistema governamental antigo".
 
 ---
 
-## 📊 STATUS DO PROJETO
-
-### ✅ **CONCLUÍDO**
-
-#### Fase 1 & 2: Setup Inicial e Autenticação (100%)
-- [x] Projeto Vite + React 18 + TypeScript configurado
-- [x] Tailwind CSS 3.4 + shadcn/ui configurado
-- [x] Sistema de autenticação estruturado (modo demo)
-- [x] Tela de login funcional (template login-04)
-- [x] Proteção de rotas implementada
-- [x] Layout base responsivo
-
-#### Dashboard SuperAdmin (60%)
-- [x] Dashboard principal com métricas (4 cards)
-- [x] Gestão de OBS (lista, filtros, ações)
-- [x] Gestão de usuários (lista, filtros, busca)
-- [x] Dados mock implementados (10 OBS, 6 usuários)
-- [x] Interface totalmente responsiva
-- [x] 33+ componentes shadcn/ui configurados
-
-### ✅ **RECÉM CONCLUÍDO - SESSÃO 13/11/2025**
-
-#### Fase 3: Supabase e Banco de Dados (95%)
-- [x] Configuração das credenciais do Supabase
-- [x] Criação das tabelas no banco
-- [x] Implementação de RLS (Row Level Security)
-- [x] Schema sincronizado e migrações aplicadas
-- [ ] Debug final do login real
-
-#### Dashboards Específicos (100%)
-- [x] Dashboard Admin OBS - Interface de gestão completa
-- [x] Dashboard Agente de Saúde - Painel operacional com agenda
-- [x] Portal Público - Interface para população
-- [x] Sistema de redirecionamento por tipo de usuário
-
-### 📅 **PRÓXIMO - SESSÃO SEGUINTE**
-
-#### Sistema de IA e Features Avançadas
-- [ ] Resolver debug do login Supabase
-- [ ] Sistema de IA integrado (triagem inteligente)
-- [ ] Claude API integration
-- [ ] Modais CRUD para OBS e usuários
+## 🛠️ TECNOLOGIAS (Confirmadas)
+*   **Frontend:** React 18 + Vite (SPA)
+*   **Linguagem:** TypeScript
+*   **UI/UX:** Tailwind CSS + Shadcn/UI
+*   **Ícones:** Lucide React
+*   **Backend/Auth/DB:** Supabase (PostgreSQL + Auth + Edge Functions)
+*   **Gerenciamento de Estado:** Zustand (leve e eficiente)
+*   **Validação de Dados:** Zod + React Hook Form
+*   **Navegação:** React Router DOM
+*   **IA:** Integração com Claude 3.5 Sonnet (Via API) para triagem e análise
+*   **Testes:** Playwright (E2E)
 
 ---
 
-## 🔧 TECNOLOGIAS UTILIZADAS
+## 🏗️ ARQUITETURA DE PASTAS (ATUALIZADA)
 
-### Frontend
-```json
-{
-  "react": "19.2.0",
-  "typescript": "5.9.3",
-  "vite": "7.2.2",
-  "tailwindcss": "3.4",
-  "shadcn/ui": "latest",
-  "react-router-dom": "7.9.5",
-  "lucide-react": "0.553.0",
-  "date-fns": "4.1.0",
-  "react-hook-form": "7.66.0",
-  "zod": "4.1.12",
-  "@tanstack/react-query": "5.90.7",
-  "zustand": "5.0.8",
-  "recharts": "2.15.4"
-}
-```
-
-### Backend/Database
-- **Supabase** - PostgreSQL + APIs automáticas + RLS
-- **Supabase Edge Functions** - Para webhooks e APIs customizadas
-- **Supabase Storage** - Upload de logos e arquivos
-
-### Integrações
-- **n8n webhooks** - Automação e integrações externas
-- **Claude API** - Sistema de IA funcional
-- **WhatsApp Business API** - Comunicação (futuro)
-
----
-
-## 🏗️ ARQUITETURA E ESTRUTURA
-
-### Estrutura Multi-Tenant
-```
-SUPERADMIN (vê tudo)
-├── OBS 1 (São Paulo)
-│   ├── Admin OBS 1
-│   ├── Agente 1A, 1B, 1C
-│   └── População (acesso público)
-├── OBS 2 (Rio de Janeiro)
-│   ├── Admin OBS 2
-│   ├── Agente 2A, 2B
-│   └── População (acesso público)
-└── OBS N (Outros estados)
-```
-
-### Estrutura de Arquivos
 ```
 src/
 ├── components/
-│   ├── ui/              # 33+ componentes shadcn/ui
-│   ├── layout/          # Header, Sidebar, Footer
-│   ├── dashboard/       # Cards, Stats, Charts
-│   └── forms/           # Formulários específicos
+│   ├── ui/               # Componentes Shadcn (Button, Card, Input...)
+│   ├── layout/           # Sidebar, Header, Layouts de página
+│   └── forms/            # Formulários complexos (FormOBS, FormUser)
 ├── pages/
-│   ├── auth/           # Login, Register, Reset
-│   ├── superadmin/     # Painel SuperAdmin ✅
-│   ├── admin-obs/      # Painel AdminOBS (planejado)
-│   ├── agente/         # Painel Agente (planejado)
-│   └── populacao/      # Portal Público (planejado)
-├── hooks/              # useAuth, useOBS, etc.
-├── lib/                # supabase, utils, api, mock-data
-├── stores/             # Zustand stores
-├── types/              # TypeScript interfaces
-└── ia/                 # Sistema de IA funcional
-```
-
-### Schema do Banco (Supabase)
-```sql
--- Tabelas Principais
-obs                    # Organizações de Saúde
-usuarios              # Usuários do sistema (multi-perfil)
-eventos_saude         # Eventos e campanhas
-medicos_disponiveis   # Médicos e especialistas
-duvidas_populacao     # Dúvidas enviadas pela população
-logs_auditoria        # Histórico de ações
+│   ├── auth/             # Login, Recuperação de Senha
+│   ├── superadmin/       # Dashboard Geral (Gestão de Multi-OBS)
+│   ├── admin-obs/        # Dashboard da UBS Específica
+│   ├── agente/           # Dashboard do Agente de Saúde
+│   ├── populacao/        # Portal do Cidadão
+│   └── public/           # Landing Page
+├── hooks/                # Custom Hooks (useAuth, useSupabase)
+├── lib/
+│   ├── supabase.ts       # Cliente Supabase Singleton
+│   ├── utils.ts          # Utilitários gerais (cn, formatters)
+│   └── mock-data.ts      # Dados falsos para dev (deprecated)
+└── types/                # Definições de Tipos TypeScript
 ```
 
 ---
 
-## ✨ FUNCIONALIDADES IMPLEMENTADAS
+## 🔐 NÍVEIS DE ACESSO (ROLES)
 
-### 1. Sistema de Autenticação
-- **Login funcional** com modo demonstração
-- **4 tipos de usuário:** SuperAdmin, Admin OBS, Agente Saúde, População
-- **Proteção de rotas** por tipo de usuário
-- **Redirecionamento automático** após login
-- **Interface responsiva** (template login-04)
-
-### 2. Dashboard SuperAdmin
-- **Métricas gerais:** Total de OBS, usuários, eventos, dúvidas
-- **Gestão de OBS:** Lista, filtros, busca, ativar/desativar
-- **Gestão de usuários:** Lista, filtros por tipo, busca por nome/email
-- **Logs de auditoria:** Histórico de ações no sistema
-- **Interface moderna:** Cards, tabelas, badges, ícones
-
-### 3. Sistema de Dados Mock
-- **10 OBS** de diferentes estados (SP, RJ, MG, RS, etc.)
-- **6 usuários** com diferentes perfis
-- **Eventos de saúde** (vacinas, campanhas)
-- **Médicos disponíveis** por especialidade
-- **Dúvidas da população** com status
-- **Cálculos automáticos** de estatísticas
-
-### 4. Interface e UX
-- **Design responsivo:** Mobile-first, 4 breakpoints
-- **Sistema de cores:** Tema claro + preparado para dark mode
-- **Componentes reutilizáveis:** 33+ componentes shadcn/ui
-- **Navegação intuitiva:** Sidebar colapsável, breadcrumbs
-- **Loading states:** Skeletons e spinners preparados
+1.  **SuperAdmin (Gestor Municipal)**
+    *   Vê TODAS as UBS.
+    *   Cria/Edita UBS e Gestores Locais.
+    *   Acesso a métricas globais do município.
+    *   **Login Pardão:** superadmin@multiobs.com
+2.  **Admin OBS (Gestor da Unidade)**
+    *   Gere apenas a SUA unidade.
+    *   Cadastra Agentes e Médicos da sua unidade.
+    *   Vê agenda e estoque da sua unidade.
+3.  **Agente de Saúde (Front-line)**
+    *   Realiza triagem.
+    *   Busca prontuários.
+    *   Agenda consultas.
+4.  **Médico (Profissional)**
+    *   Atendimento, Prescrição, Evolução.
+5.  **Cidadão (Público)**
+    *   Agendamento online.
+    *   Visualização de histórico.
+    *   Telemedicina (Futuro).
 
 ---
 
-## 🤖 SISTEMA DE IA FUNCIONAL
+## 🚀 STATUS DO DESENVOLVIMENTO
 
-### Filosofia: IA que Resolve Problemas Reais
+### 1. Autenticação & Supabase (✅ 95%)
+- [x] Configuração do Projeto Supabase
+- [x] Tabelas Criadas (`organizacoes`, `usuarios`, `eventos`, `agendas`)
+- [x] Políticas de Segurança (RLS) configuradas
+- [x] Login Funcional (Redirecionando por Role)
+- [x] Persistência de Sessão
+- [ ] *Debug:* Alguns testes E2E falham no login, mas manual funciona.
 
-Ao contrário de chatbots vazios, nossa IA é projetada para:
-- ✅ **Automatizar tarefas repetitivas** dos profissionais
-- ✅ **Gerar insights acionáveis** a partir dos dados
-- ✅ **Prever problemas** antes que aconteçam
-- ✅ **Otimizar recursos** e agendamentos
-- ✅ **Melhorar a tomada de decisão** com dados
-- ✅ **Reduzir trabalho manual** em 70%+
+### 2. SuperAdmin Dashboard (🚧 60%)
+- [x] Sidebar e Layout Base
+- [x] Cards de Métricas (Total OBS, Usuários)
+- [x] Lista de OBS (Mock -> Real)
+- [x] Modais de Criação (Nova OBS, Novo Usuário)
+- [ ] Edição e Exclusão de OBS
+- [ ] Filtros Avançados
 
-### 10 Funcionalidades de IA Principais
+### 3. Admin OBS Dashboard (🚧 40%)
+- [x] Detecção automática da OBS do usuário logado
+- [x] Cards de Métricas da Unidade (Pacientes, Consultas)
+- [x] Lista de Eventos/Agendas Recentes
+- [ ] Gestão de Estoque
+- [ ] Gestão de Escala Médica
 
-#### 1. 🎯 IA para Triagem Inteligente
-**Problema:** Agentes passam horas classificando dúvidas e priorizando atendimentos
-**Solução:** Análise automática de dúvidas da população
-- Categorização automática (urgente/normal/informativa)
-- Identificação de emergências médicas
-- Respostas automáticas para casos simples
-- Priorização inteligente da fila
+### 4. Agente Dashboard (📅 A Fazer)
+- [ ] Interface de Triagem Rápida
+- [ ] Busca de Pacientes (Busca Elástica)
+- [ ] Agenda do Dia
 
-#### 2. 📊 IA para Análise Epidemiológica
-**Problema:** Difícil identificar surtos e padrões de doenças manualmente
-**Solução:** Detectar padrões anormais e prever surtos
-- Detecção precoce de surtos (2-3 semanas antes)
-- Alertas automáticos para gestores
-- Previsão de demanda por vacinação
-- Sugestões de campanhas preventivas
-
-#### 3. 📅 IA para Otimização de Agenda
-**Problema:** Agendamentos ineficientes causam filas e desperdício
-**Solução:** Otimização inteligente de recursos
-- Sugestão de melhores horários
-- Previsão e redução de no-shows
-- Redistribuição automática de recursos
-- Aumento de 30% na eficiência
-
-#### 4. 📝 IA para Geração de Conteúdo Educativo
-**Problema:** Falta de conteúdo educativo personalizado
-**Solução:** Criação automática de materiais
-- Posts automáticos para redes sociais
-- Panfletos educativos personalizados
-- Adaptação de linguagem por público
-- 10x mais conteúdo com mesma equipe
-
-#### 5. 🔍 IA para Busca Inteligente
-**Problema:** Difícil encontrar informações específicas
-**Solução:** Busca semântica avançada
-- "Qual posto tem vacina de febre amarela hoje?"
-- Busca por sintomas com orientação
-- Encontrar informações 5x mais rápido
-
-#### 6-10. Outras Funcionalidades
-- **Análise Preditiva:** Previsão de demanda e riscos
-- **Assistente Virtual:** Atendimento 24/7 à população
-- **Geração de Relatórios:** Relatórios executivos automáticos
-- **Motor de Engajamento:** Personalização de campanhas
-- **Análise de Qualidade:** Monitoramento automático de KPIs
-
-### ROI Esperado
-```
-ANTES (sem IA):
-- 3 agentes x 40h/semana x R$ 3.000 = R$ 9.000/mês
-- Tempo em triagem: 40%
-- Tempo em relatórios: 20%
-- Tempo em dúvidas repetitivas: 30%
-
-DEPOIS (com IA):
-- Redução de 70% em tarefas repetitivas
-- 1 agente faz trabalho de 2-3
-- Economia: ~R$ 6.000/mês por OBS
-- ROI positivo em 2-3 meses
-```
+### 5. Portal do Cidadão (📅 A Fazer)
+- [ ] Home com Notícias/Avisos
+- [ ] Login do Paciente (CPF)
+- [ ] Meus Agendamentos
 
 ---
 
-## ✅ CHECKLIST DE DESENVOLVIMENTO
+## 🤖 INTEGRAÇÃO IA (NEXX AI) - PLANEJAMENTO
 
-### 📊 PROGRESSO GERAL
-```
-[████████████████████] 20% - MVP básico em andamento
-```
+### Funcionalidades da IA
+1.  **Triagem Inteligente:** Analisar sintomas relatados e sugerir prioridade (Azul, Verde, Amarelo, Vermelho).
+2.  **Resumo de Prontuário:** Gerar resumo clínico para o médico antes da consulta.
+3.  **Chatbot de Dúvidas:** Responder dúvidas da população sobre vacinas e horários.
+4.  **Auditoria Automática:** Identificar erros de cadastro que bloqueiam repasses do SISAB.
 
-### ✅ FASE 1-2: CONCLUÍDO (100%)
-- [x] ⚙️ Projeto Vite + React + TypeScript
-- [x] 🎨 Tailwind CSS configurado
-- [x] 📦 shadcn/ui (33+ componentes)
-- [x] 🛣️ React Router DOM
-- [x] 📁 Estrutura de pastas padrão
-- [x] 🔑 Tela de login funcional
-- [x] 🛡️ Proteção de rotas
-- [x] 💾 Sistema de autenticação
-
-### ✅ FASE 5: DASHBOARD SUPERADMIN (60%)
-- [x] 📊 Dashboard com cards de métricas
-- [x] 📋 Lista de OBS (tabela + filtros)
-- [x] 👥 Lista de usuários (tabela + filtros)
-- [x] 📜 Logs de auditoria básicos
-- [x] 🔄 Ações básicas (ativar/desativar)
-- [x] 📱 Interface totalmente responsiva
-
-### 🔄 FASE 3: EM ANDAMENTO (25%)
-- [x] 📋 Schema das tabelas definido
-- [x] 🔒 Políticas RLS documentadas
-- [ ] 🗄️ Configurar credenciais Supabase
-- [ ] ⚡ Criar tabelas no banco
-- [ ] 🛡️ Implementar RLS
-- [ ] 🔗 Migrar de mock para dados reais
-
-### 📅 FASES PRÓXIMAS
-
-#### FASE 4: Layout e Navegação (0%)
-- [ ] 📱 Menu mobile melhorado
-- [ ] 🍞 Breadcrumbs navigation
-- [ ] 🔄 Loading states globais
-- [ ] ⚠️ Error boundaries
-
-#### FASE 6: Dashboard Admin OBS (0%)
-- [ ] 📊 Stats específicos da OBS
-- [ ] 👥 Gestão de agentes
-- [ ] 📅 Calendário de eventos
-- [ ] ❓ Sistema de dúvidas
-- [ ] ⚙️ Configurações da OBS
-
-#### FASE 7: Dashboard Agente (0%)
-- [ ] 📅 Calendário simplificado
-- [ ] ➕ Formulário rápido de evento
-- [ ] 👨‍⚕️ Cadastro de médicos
-- [ ] ❓ Visualização de dúvidas
-
-#### FASE 8: Portal Público (0%)
-- [ ] 🏠 Página inicial pública
-- [ ] 📅 Calendário de eventos
-- [ ] 🔍 Busca por eventos
-- [ ] ❓ Formulário de dúvidas
-- [ ] 👨‍⚕️ Lista de médicos
-
-#### FASE 9: Sistema de IA (0%)
-- [ ] 🤖 Integração com Claude API
-- [ ] 🎯 IA de triagem inteligente
-- [ ] 📊 Análise epidemiológica
-- [ ] 📈 Previsões e insights
-- [ ] 💬 Assistente virtual
-
-#### FASE 10-12: Features Avançadas (0%)
-- [ ] 🔗 Webhooks n8n
-- [ ] 📧 Sistema de notificações
-- [ ] 📄 Relatórios em PDF
-- [ ] 📊 Gráficos avançados
-- [ ] 🧪 Testes automatizados
-- [ ] 🚀 Deploy em produção
-
-### 📈 MÉTRICAS DE PROGRESSO
-
-| Fase | Nome | Status | Progresso | Prioridade |
-|------|------|--------|-----------|------------|
-| 1-2 | Setup + Auth | ✅ | 100% | ✅ MVP |
-| 5 | Dashboard Super | 🔄 | 60% | ✅ MVP |
-| 3 | Supabase | 🔄 | 25% | ✅ MVP |
-| 4 | Layout | ⏸️ | 0% | ✅ MVP |
-| 6 | Dashboard Admin | ⏸️ | 0% | ✅ MVP |
-| 7 | Dashboard Agente | ⏸️ | 0% | ✅ MVP |
-| 8 | Portal Público | ⏸️ | 0% | ✅ MVP |
-| 9 | Sistema IA | ⏸️ | 0% | 🚀 DIFERENCIAL |
-| 10-12 | Avançadas | ⏸️ | 0% | 📅 FUTURO |
-
-**Progresso Total:** 20% (2 de 9 fases principais)
-**MVP (Fases 1-8):** 23% concluído
-**Tempo estimado para MVP:** 3-4 semanas
+### Stack IA
+-   **Modelo:** Claude 3.5 Sonnet (Via Anthropic API)
+-   **Orquestração:** LangChain (TypeScript)
+-   **Vector DB:** Supabase pgvector (para busca semântica em protocolos)
 
 ---
 
-## 🚀 PRÓXIMOS PASSOS
+## 📝 CHECKLIST IMEDIATO (PRÓXIMOS PASSOS)
 
-### Prioridade 1: COMPLETAR MVP BÁSICO (2 semanas)
-
-#### 1. Finalizar Configuração Supabase (2-3 dias)
-```bash
-# 1. Configurar .env
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua-chave-aqui
-
-# 2. Executar SQLs das tabelas
-# 3. Implementar RLS policies
-# 4. Substituir mock por queries reais
-```
-
-#### 2. Completar Dashboard SuperAdmin (1-2 dias)
-- [ ] Modal de criação de OBS
-- [ ] Modal de edição de OBS
-- [ ] Modal de criação de usuário
-- [ ] Modal de edição de usuário
-- [ ] Validação com React Hook Form + Zod
-
-#### 3. Implementar Dashboards Básicos (5-7 dias)
-- [ ] Dashboard Admin OBS (gestão básica)
-- [ ] Dashboard Agente (formulários simples)
-- [ ] Portal Público (calendário + dúvidas)
-
-### Prioridade 2: SISTEMA DE IA (1-2 semanas)
-
-#### 1. Integração Claude API (3-4 dias)
-- [ ] Configurar cliente Anthropic
-- [ ] Implementar IA de triagem
-- [ ] Criar chat assistente virtual
-- [ ] Geração de insights básicos
-
-#### 2. Features Avançadas de IA (7-10 dias)
-- [ ] Análise epidemiológica
-- [ ] Geração de relatórios
-- [ ] Previsões e alertas
-- [ ] Dashboard de performance da IA
-
-### Prioridade 3: PRODUÇÃO (1 semana)
-
-#### 1. Testes e Otimizações
-- [ ] Testes básicos dos fluxos principais
-- [ ] Otimização de performance
-- [ ] Ajustes de UX/UI
-
-#### 2. Deploy
-- [ ] Configurar Vercel/Netlify
-- [ ] Domínio customizado
-- [ ] Monitoramento (Sentry)
+1.  **Consolidar CRUD SuperAdmin:**
+    *   Garantir que "Criar OBS" e "Criar Usuário" salvem corretamente no Supabase e atualizem a lista em tempo real.
+2.  **Implementar Agente Dashboard:**
+    *   Criar a tela de "Fila de Espera" e "Triagem".
+3.  **Refinar Testes E2E:**
+    *   Corrigir os timeouts nos testes de login do Playwright.
+4.  **Início da IA:**
+    *   Criar uma Edge Function simples que recebe um texto e devolve uma análise de sentimento (Teste de Hello World da IA).
 
 ---
 
-## 💻 EXEMPLOS DE CÓDIGO
+## 📊 BANCO DE DADOS (SUPABASE SCHEMA)
 
-### 1. Configuração Supabase
-```typescript
-// src/lib/supabase.ts
-import { createClient } from '@supabase/supabase-js';
+### Tabela: `organizacoes`
+*   `id` (uuid, pk)
+*   `nome` (text)
+*   `cnes` (text, unique)
+*   `endereco` (text)
+*   `ativo` (bool)
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+### Tabela: `usuarios`
+*   `id` (uuid, pk) - *Linkado ao auth.users*
+*   `nome` (text)
+*   `email` (text)
+*   `role` (enum: 'superadmin', 'admin_obs', 'agente', 'medico', 'paciente')
+*   `organizacao_id` (fk -> organizacoes, nullable para superadmin)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Types principais
-export interface Usuario {
-  id: string;
-  auth_id: string;
-  obs_id: string | null;
-  nome: string;
-  email: string;
-  tipo_usuario: 'superadmin' | 'admin_obs' | 'agente_saude' | 'populacao';
-  status: 'ativo' | 'inativo';
-}
-
-export interface OBS {
-  id: string;
-  nome: string;
-  cidade: string;
-  estado: string;
-  status: 'ativo' | 'inativo' | 'suspenso';
-  plano: 'basico' | 'premium' | 'enterprise';
-}
-```
-
-### 2. Hook de Autenticação
-```typescript
-// src/hooks/useAuth.ts
-import { useState, useEffect } from 'react';
-import { supabase, Usuario } from '@/lib/supabase';
-
-export function useAuth() {
-  const [user, setUser] = useState<Usuario | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email, password
-    });
-    
-    if (error) throw error;
-    
-    // Carregar dados do usuário da tabela usuarios
-    await loadUserData(data.user.id);
-  };
-
-  const loadUserData = async (authId: string) => {
-    const { data } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('auth_id', authId)
-      .single();
-      
-    setUser(data);
-  };
-
-  return { user, loading, signIn, signOut };
-}
-```
-
-### 3. Formulário com Validação
-```typescript
-// src/components/forms/FormOBS.tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-const obsSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
-  cidade: z.string().min(2, 'Cidade é obrigatória'),
-  estado: z.string().length(2, 'Use sigla do estado (ex: SP)'),
-  email: z.string().email('Email inválido'),
-  telefone: z.string().optional(),
-});
-
-export function FormOBS({ onSuccess }: { onSuccess?: () => void }) {
-  const form = useForm({
-    resolver: zodResolver(obsSchema),
-  });
-
-  const onSubmit = async (data: z.infer<typeof obsSchema>) => {
-    const { error } = await supabase
-      .from('obs')
-      .insert(data);
-
-    if (!error) {
-      toast.success('OBS criada com sucesso!');
-      onSuccess?.();
-    }
-  };
-
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      {/* Campos do formulário */}
-    </form>
-  );
-}
-```
-
-### 4. Sistema de IA - Triagem
-```typescript
-// src/services/ia/triagem.service.ts
-import Anthropic from '@anthropic-ai/sdk';
-
-export class TriagemIA {
-  private anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  });
-
-  async analisarDuvida(texto: string, contexto: any) {
-    const prompt = `
-    Analise esta dúvida de saúde pública:
-    "${texto}"
-    
-    Retorne JSON com:
-    - categoria: urgente/normal/informativa
-    - especialidadeRecomendada: string
-    - prioridade: 1-10
-    - riscoIdentificado: boolean
-    - resposta: string (se aplicável)
-    `;
-
-    const response = await this.anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    return JSON.parse(response.content[0].text);
-  }
-}
-```
+### Tabela: `eventos` (Agenda/Triagem)
+*   `id` (uuid, pk)
+*   `titulo` (text)
+*   `data_inicio` (timestamp)
+*   `status` (enum: 'agendado', 'triagem', 'em_atendimento', 'finalizado')
+*   `paciente_id` (fk)
+*   `medico_id` (fk)
 
 ---
 
-## 🏃‍♂️ COMO EXECUTAR
-
-### 1. Pré-requisitos
-```bash
-# Node.js 18+ e npm
-node --version  # v18+
-npm --version   # 9+
-```
-
-### 2. Instalação
-```bash
-# Clonar repositório
-cd projetoUBS
-
-# Instalar dependências
-npm install
-
-# Configurar variáveis de ambiente
-cp .env.example .env
-# Editar .env com suas credenciais do Supabase
-```
-
-### 3. Configuração do Supabase (quando estiver pronto)
-```bash
-# 1. Criar conta no Supabase (https://supabase.com)
-# 2. Criar novo projeto
-# 3. Obter URL e chave anônima
-# 4. Atualizar .env:
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua-chave-aqui
-
-# 5. Executar SQLs das tabelas (documentado em schema.sql)
-```
-
-### 4. Executar em Desenvolvimento
-```bash
-# Iniciar servidor de desenvolvimento
-npm run dev
-
-# Acessar aplicação
-open http://localhost:5174
-```
-
-### 5. Login de Demonstração
-```
-Email: qualquer@email.com
-Senha: qualquer
-```
-
-### 6. Build para Produção
-```bash
-# Build
-npm run build
-
-# Preview
-npm run preview
-
-# Deploy (Vercel/Netlify)
-npm run deploy
-```
+## 🎨 DIRETRIZES DE UI (SHADCN)
+*   Use sempre componentes de `src/components/ui`.
+*   Para novos componentes: `npx shadcn-ui@latest add [nome-componente]`.
+*   Mantenha o tema "Clean & Professional" (Azul Interacion, Branco, Cinza Neutro).
+*   **Acessibilidade:** Garanta navegação por teclado e contraste adequado.
 
 ---
 
-## 📝 CHANGELOG - IMPLEMENTAÇÕES RECENTES
-
-### 🚀 **SESSÃO 13/11/2025 (18:00-20:40)**
-
-#### **✅ PRINCIPAIS CONQUISTAS DESTA SESSÃO:**
-
-##### **1. 🗄️ Configuração Completa do Supabase**
-```yaml
-Implementações:
-  ✅ Supabase CLI instalado e configurado
-  ✅ Projeto Multi-OBS linkado (tunghnlotxnslbsuawpc)
-  ✅ Variáveis de ambiente configuradas (.env)
-  ✅ Schema do banco sincronizado
-  ✅ Migrações aplicadas com sucesso (001_initial_schema.sql, 002_rls_policies.sql)
-  ✅ Script create_superadmin.sql preparado
-
-Detalhes Técnicos:
-  - URL: https://tunghnlotxnslbsuawpc.supabase.co
-  - RLS políticas implementadas
-  - Backup e logs configurados
-  - Correção: uuid_generate_v4() → gen_random_uuid()
-```
-
-##### **2. 🎯 Sistema de Redirecionamento Multi-Usuário**
-```yaml
-Dashboards Criados:
-  ✅ SuperAdmin Dashboard: Gestão completa do sistema
-    - Métricas gerais (OBS, usuários, eventos)
-    - Gestão de organizações
-    - Logs de auditoria
-    
-  ✅ Admin OBS Dashboard: Gestão da organização
-    - Stats da OBS (agentes, eventos, população)
-    - Eventos recentes
-    - Ações rápidas
-    
-  ✅ Agente Dashboard: Interface operacional
-    - Agenda do dia
-    - Dúvidas urgentes da população
-    - Atendimentos realizados
-    
-  ✅ Portal População: Interface pública
-    - Eventos de saúde disponíveis
-    - Médicos disponíveis
-    - Formulário de dúvidas
-
-Funcionalidades:
-  ✅ Redirecionamento automático por tipo de usuário
-  ✅ Modo demo com seletor de tipo de usuário
-  ✅ Rotas específicas (/superadmin, /admin, /agente, /)
-  ✅ Mock data personalizado por perfil
-```
-
-##### **3. 📋 Documentação Completa do Edital**
-```yaml
-Seções Adicionadas:
-  ✅ Conformidade 100% com Pregão Eletrônico 031/2025
-  ✅ Requisitos técnicos detalhados (4.17)
-  ✅ Parâmetros de IA (4.18) - 95% acurácia
-  ✅ Plano de capacitação e consultoria
-  ✅ Integração e-SUS/PEP/FHIR
-  ✅ SLA 99.9% com garantias
-  ✅ Modelo de investimento e ROI
-  ✅ Segurança LGPD completa
-
-Resultado: Documentação 100% alinhada com edital
-```
-
-##### **4. 🐛 Debug e Troubleshooting**
-```yaml
-Problemas Identificados:
-  ⚠️ Login com Supabase real apresentando dificuldades
-  
-Soluções Implementadas:
-  ✅ Logs de debug detalhados no console
-  ✅ Botão "Modo Demo (Debug)" para forçar demo
-  ✅ Script test-auth-debug.js para diagnóstico
-  ✅ Sistema de fallback robusto
-  ✅ Verificação de configuração isSupabaseConfigured
-
-Status: Em investigação (funcionando em modo demo)
-```
-
-#### **📊 PROGRESSO ATUALIZADO:**
-
-##### **MVP BÁSICO: 75% CONCLUÍDO**
-```progress
-[███████████████████████░░] 75%
-
-✅ Setup e Autenticação (100%)
-✅ Dashboard SuperAdmin (100%) 
-✅ Supabase Configuração (95%)
-✅ Dashboards Específicos (100%)
-✅ Redirecionamento (100%)
-✅ Documentação Edital (100%)
-⚠️ Sistema Login (Debug em progresso)
-```
-
-##### **FASES CONCLUÍDAS:**
-- ✅ **Fase 1-2:** Setup + Auth (100%)
-- ✅ **Fase 3:** Supabase (95%)
-- ✅ **Fase 5:** Dashboard SuperAdmin (100%)
-- ✅ **Fase 6-8:** Dashboards específicos (100%)
-
-##### **PRÓXIMAS PRIORIDADES:**
-- 🔧 **Resolver login Supabase** (debug em progresso)
-- 🤖 **Implementar IA de triagem** (próxima sessão)
-- 🛠️ **Modais CRUD** (pendente)
-- ⚡ **Claude API integration** (planejado)
-
-#### **🎯 DEMONSTRAÇÕES FUNCIONAIS:**
-
-**Login Demo Testado:**
-```bash
-URL: localhost:5173/login
-Tipos: SuperAdmin | Admin OBS | Agente | População
-Credenciais: Qualquer email e senha
-```
-
-**Interfaces Verificadas:**
-- ✅ SuperAdmin: Dashboard completo funcional
-- ✅ Admin OBS: Interface de gestão responsiva  
-- ✅ Agente: Painel operacional com agenda
-- ✅ População: Portal público atrativo
-
-#### **📁 ARQUIVOS CRIADOS/MODIFICADOS:**
-
-**Novos Arquivos:**
-```
-src/pages/admin-obs/Dashboard.tsx
-src/pages/agente/Dashboard.tsx  
-src/pages/populacao/Home.tsx
-test-auth-debug.js
-```
-
-**Arquivos Atualizados:**
-```
-src/hooks/useAuth.ts (redirecionamento + debug)
-src/components/login-form.tsx (seletor de usuário)
-src/App.tsx (rotas específicas)
-docs/PROJETO-OVERVIEW-GUID.md (conformidade edital)
-.env (configuração Supabase)
-```
-
-#### **🔧 COMANDOS EXECUTADOS:**
-```bash
-# Configuração Supabase
-supabase projects list
-supabase link --project-ref tunghnlotxnslbsuawpc
-supabase status
-supabase projects api-keys
-supabase db push
-
-# Correções Schema  
-# uuid_generate_v4() → gen_random_uuid()
-# Extension: uuid-ossp → pgcrypto
-```
-
-#### **💾 BACKUP E ESTADO:**
-```yaml
-Branch: main
-Estado: Funcionando em modo demo
-Sistema: 4 dashboards implementados
-Documentação: 100% alinhada com edital
-Supabase: Conectado e sincronizado
-Próximo: Debug login + IA implementation
-```
-
----
-
-## 📞 CONTATO E SUPORTE
-
-**Desenvolvedor:** Dancustodio  
-**Data de Criação:** 10/11/2025  
-**Última Atualização:** 13/11/2025 - 20:40  
-
-### Links Importantes
-- **Supabase Docs:** https://supabase.com/docs
-- **shadcn/ui:** https://ui.shadcn.com
-- **React Query:** https://tanstack.com/query
-- **Tailwind CSS:** https://tailwindcss.com
-- **Claude API:** https://docs.anthropic.com
-
-### Status do Projeto
-🔄 **EM DESENVOLVIMENTO ATIVO**  
-✅ **MVP BÁSICO:** 20% concluído  
 🎯 **PRÓXIMA META:** Configurar Supabase e completar dashboards  
 🤖 **DIFERENCIAL:** Sistema de IA funcional integrado  
+
+## 🌐 ECOSSISTEMA NEXX SAÚDE (INTEGRAÇÃO & EXPANSÃO)
+
+Este projeto evolui para o **Nexx Saúde**, uma plataforma de inteligência que não substitui, mas potencializa os sistemas governamentais existentes.
+
+### 🧩 Módulos do Sistema
+
+#### 1. Módulo Nexx Core (Integração & Dados)
+*   **Função:** Backend central que unifica dados dispersos.
+*   **Integrações (Read-only):**
+    *   **PEC (Prontuário Eletrônico):** Extrai atendimentos, diagnósticos e procedimentos.
+    *   **CDS (Coleta Simplificada):** Importa e padroniza fichas de produção.
+    *   **e-SUS Território:** Reconstrói o "mapa vivo" (famílias, imóveis, visitas).
+*   **Entregável:** Data Warehouse Municipal unificado.
+
+#### 2. Módulo Nexx AI (Auditoria & Insights)
+*   **Auditoria Automática:** Varredura de erros que bloqueiam repasses do SISAB.
+    *   *Ex:* CPF inválido, duplicidades, gestação em homem.
+*   **Triagem Inteligente:** Classificação automática de risco (urgente/normal).
+*   **Análise Epidemiológica:** Detecção precoce de surtos e padrões de doenças.
+
+#### 3. Módulo Nexx Vision (Dashboard do Gestor)
+*   **Visão Financeira:** Projeção de perda/ganho financeiro baseada na produção atual.
+*   **Produtividade:** Ranking de ACS e UBS por desempenho e sincronização.
+*   **Mapa de Saúde:** Geolocalização de riscos (gestantes, acamados, hipertensos).
+
+#### 4. Módulo Nexx Mobile (App de Campo - Opcional)
+*   **Tecnologia:** Flutter + SQLite (Offline-First).
+*   **Uso:** Para municípios sem e-SUS Território ou como complemento avançado.
+*   **Features:** Cadastro domiciliar, validação de CPF na ponta, metas para o ACS.
+
+---
+
+### 🔄 Fluxo de Valor e Resolução de Problemas
+
+| Problema Atual | Solução Nexx Saúde |
+| :--- | :--- |
+| **Dados Incompletos** (Perda de repasse SISAB Audit) | **Auditoria Automática** que lista erros críticos por UBS/Equipe antes do fechamento. |
+| **Visão Fragmentada** (PEC separado do Território) | **Visão Unificada** cruzando dados clínicos (PEC) com visitas (Território). |
+| **Gestão Reativa** (Descobre tarde a meta não batida) | **Projeção Preditiva** ("Se fechar hoje, perde R$ X") com ações recomendadas. |
+| **Cobrança Ineficaz** (Não sabe quem produz) | **Ranking de Produtividade** e monitoramento de sincronização diária. |
+
+---
+
+### 📅 Roteiro de Implantação (Modelo 120 Dias)
+
+#### Fase 1: Diagnóstico (D1-D30)
+*   Instalação de conectores (PEC/CDS).
+*   Auditoria inicial da base ("Retrato da APS").
+
+#### Fase 2: Configuração (D31-D60)
+*   Modelagem dos dashboards (Visão Financeira/Produtividade).
+*   Parametrização de metas locais.
+
+#### Fase 3: Capacitação (D61-D90)
+*   Treinamento de gestores e equipes.
+*   Estabelecimento do rito mensal de indicadores.
+
+#### Fase 4: Estabilização (D91-D120)
+*   Ciclo completo de envio ao SISAB guiado pelo Nexx.
+*   Ajustes finos em IA e regras de negócio.
 
 ---
 
@@ -1240,3 +675,87 @@ Economia Operacional/Mês:
 ---
 
 **🎉 Projeto Multi-OBS: Solução completa e inovadora para transformar a saúde pública brasileira!**
+
+---
+
+## ✅ CHECKLIST MESTRE - IMPLEMENTAÇÃO NEXX 120 (ROTEIRO TÉCNICO & OPERACIONAL)
+
+Este checklist consolida todas as etapas para transformar o MVP atual no produto final **Nexx Saúde**, seguindo o modelo "Nexx 120" (Diagnóstico → Configuração → Capacitação → Estabilização).
+
+### 🗓️ FASE 1: DIAGNÓSTICO E DADOS (DIAS 1-30)
+**Meta:** "Colocar o esqueleto em pé e auditar a base."
+
+#### 🛠️ Trilha Técnica (Dev)
+- [ ] **Infraestrutura Base**
+    - [ ] Configurar Banco Central PostgreSQL (Data Warehouse).
+    - [ ] Configurar Supabase Edge Functions para ingestão de dados.
+    - [ ] Implementar Logs de Auditoria robustos.
+- [ ] **Conectores de Dados (Módulo Core)**
+    - [ ] Criar script de extração *read-only* para PEC (PostgreSQL).
+    - [ ] Criar importador de arquivos CDS (Thrift/XML).
+    - [ ] Criar extrator de e-SUS Território (vínculo de famílias/imóveis).
+- [ ] **Auditoria Automática (Módulo AI)**
+    - [ ] Implementar regras de validação de CPF/CNS.
+    - [ ] Identificar duplicidades de cadastro.
+    - [ ] Listar inconsistências críticas (ex: gestante masculina).
+
+#### 💼 Trilha Operacional
+- [ ] Relatório "Retrato da APS Hoje" (Baseline).
+- [ ] Relatório de Vínculos CNES/INE.
+
+---
+
+### 🗓️ FASE 2: CONFIGURAÇÃO E PAINÉIS (DIAS 31-60)
+**Meta:** "Fazer o coração bater e os dados virarem informação."
+
+#### 🛠️ Trilha Técnica (Dev)
+- [ ] **Módulo Nexx Vision (Dashboards)**
+    - [ ] Painel Financeiro (Projeção de Repasse).
+    - [ ] Painel de Produtividade (Ranking ACS/Equipe).
+    - [ ] Painel Epidemiológico (Mapa de Calor).
+- [ ] **App Nexx Mobile (Se necessário)**
+    - [ ] Implementar Sync Bidirecional (Offline-First).
+    - [ ] Cadastro Domiciliar e Individual Completo.
+    - [ ] Validação na ponta (impedir cadastro errado).
+- [ ] **Refinamento de IA**
+    - [ ] Triagem Inteligente de Dúvidas (Categorização).
+    - [ ] Alertas de Risco de Saúde (Gestantes/Crônicos sem visita).
+
+#### 💼 Trilha Operacional
+- [ ] Validação dos dados com gestores.
+- [ ] Parametrização de metas locais.
+
+---
+
+### 🗓️ FASE 3: CAPACITAÇÃO E GOVERNANÇA (DIAS 61-90)
+**Meta:** "Transformar ferramenta em cultura."
+
+#### 🛠️ Trilha Técnica (Dev)
+- [ ] **Polimento UX/UI**
+    - [ ] Simplificar fluxos de cadastro.
+    - [ ] Melhorar feedback visual de erros.
+    - [ ] Otimizar performance de carregamento.
+- [ ] **Integração Final**
+    - [ ] Cruzamento total PEC x Território.
+    - [ ] Geração automática de relatórios de inconsistência.
+
+#### 💼 Trilha Operacional
+- [ ] Treinamento de Coordenadores e Enfermeiros.
+- [ ] Implantar rito mensal de indicadores.
+
+---
+
+### 🗓️ FASE 4: ESTABILIZAÇÃO (DIAS 91-120)
+**Meta:** "Ciclo completo e entrega de valor."
+
+#### 🛠️ Trilha Técnica (Dev)
+- [ ] **Monitoramento e Alertas**
+    - [ ] Dashboards de monitoramento do sistema (Sentry/Logs).
+    - [ ] Alertas automáticos de falha de sync.
+- [ ] **Entrega Final**
+    - [ ] Documentação técnica completa.
+    - [ ] Backup e rotinas de segurança validadas.
+
+#### 💼 Trilha Operacional
+- [ ] Acompanhamento de fechamento de ciclo (quadrimestre).
+- [ ] Relatório oficial de impacto ("Antes vs Depois").
